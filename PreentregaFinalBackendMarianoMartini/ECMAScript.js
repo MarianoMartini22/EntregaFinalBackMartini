@@ -50,10 +50,10 @@ class ProductManager {
   
   const manager = new ProductManager();
   
-  manager.addProduct('Producto 1', 'Descripción 1', 10, 'imagen1.jpg', 'CODE001', 20);
-  manager.addProduct('Producto 1', 'Descripción 1', 10, 'imagen1.jpg', 'CODE001', 20);
-  manager.addProduct('Producto 2', 'Descripción 2', 15, 'imagen2.jpg', 'CODE002', 10);
-  manager.addProduct('Producto 3', 'Descripción 3', 20, 'imagen3.jpg', 'CODE003', 5);
+  manager.addProduct('Chupetines', 'Leritier de frutilla', 10, 'imagen1.jpg', 'CODE001', 20);
+  manager.addProduct('Chupetines', 'Leritier de frutilla', 10, 'imagen1.jpg', 'CODE001', 20);
+  manager.addProduct('Alfajor', 'Milka triple', 15, 'imagen2.jpg', 'CODE002', 10);
+  manager.addProduct('Barra de chocolate', 'Cofler aireado', 20, 'imagen3.jpg', 'CODE003', 5);
   
   console.log(manager.getProducts());
   
