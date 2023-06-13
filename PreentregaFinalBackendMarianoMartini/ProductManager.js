@@ -77,13 +77,14 @@ class ProductManager {
   updateProduct(id, updatedFields) {
     const index = this.products.findIndex((product) => product.id === id);
     if (index !== -1) {
-      const updatedProduct = { ...this.products[index], ...updatedFields };
+      const updatedProduct = { ...this.products[index], ...updatedFields, id: this.products[index].id };
       this.products[index] = updatedProduct;
       this.saveProducts();
     } else {
       console.log('Error: Producto no encontrado.');
     }
   }
+  
 
   deleteProduct(id) {
     const index = this.products.findIndex((product) => product.id === id);
