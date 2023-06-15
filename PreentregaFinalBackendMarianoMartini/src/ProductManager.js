@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 class ProductManager {
   constructor(filePath) {
@@ -97,17 +97,11 @@ class ProductManager {
   }
 }
 
+export default class {}
+
 const filePath = path.join('./productos.json');
 const manager = new ProductManager(filePath);
 
-manager.addProduct({
-  title: 'Chupetines',
-  description: 'Leritier de frutilla',
-  price: 10,
-  thumbnail: 'imagen1.jpg',
-  code: 'CODE001',
-  stock: 20,
-});
 manager.addProduct({
   title: 'Chupetines',
   description: 'Leritier de frutilla',
@@ -132,17 +126,74 @@ thumbnail: 'imagen3.jpg',
 code: 'CODE003',
 stock: 5,
 });
+manager.addProduct({
+  title: 'Caramelo',
+  description: 'Sabor miel',
+  price: 12,
+  thumbnail: 'imagen4.jpg',
+  code: 'CODE004',
+  stock: 510,
+});
+manager.addProduct({
+  title: 'Caramelo Flynpaff',
+  description: 'Sabor frutilla',
+  price: 30,
+  thumbnail: 'imagen5.jpg',
+  code: 'CODE005',
+  stock: 300,
+});
+manager.addProduct({
+  title: 'Gomitas',
+  description: 'Mogul multifruta',
+  price: 100,
+  thumbnail: 'imagen6.jpg',
+  code: 'CODE006',
+  stock: 80,
+});
+manager.addProduct({
+  title: 'Galletitas Oreo',
+  description: 'Galletitas rellenas',
+  price: 150,
+  thumbnail: 'imagen7.jpg',
+  code: 'CODE007',
+  stock: 45,
+});
+manager.addProduct({
+  title: 'Chicles Beldent',
+  description: 'Sabor menta',
+  price: 210,
+  thumbnail: 'imagen8.jpg',
+  code: 'CODE008',
+  stock: 110,
+});
+manager.addProduct({
+  title: 'Coca Cola',
+  description: 'Gaseosa sabor cola 600cc',
+  price: 270,
+  thumbnail: 'imagen9.jpg',
+  code: 'CODE009',
+  stock: 38,
+});
+manager.addProduct({
+  title: 'Galletitas Don Satur',
+  description: 'Galletitas agridulces',
+  price: 110,
+  thumbnail: 'imagen10.jpg',
+  code: 'CODE0010',
+  stock: 55,
+});
 
-console.log(manager.getProducts());
+// console.log(manager.getProducts());
 
-console.log(manager.getProductById(2));
+// console.log(manager.getProductById(2));
 
-console.log(manager.getProductById(4));
+// console.log(manager.getProductById(4));
 
-// Actualizar un producto
-manager.updateProduct(2, { price: 12, stock: 15 });
+// // Actualizar un producto
+// manager.updateProduct(2, { price: 12, stock: 15 });
 
-// Eliminar un producto
-manager.deleteProduct(4);
+// // Eliminar un producto
+// manager.deleteProduct(4);
 
-console.log(manager.getProducts());
+// console.log(manager.getProducts());
+
