@@ -99,18 +99,3 @@ class ProductManager {
 }
 
 export default ProductManager
-
-// console.log(manager.getProducts());
-
-// console.log(manager.getProductById(2));
-
-// console.log(manager.getProductById(4));
-
-// // Actualizar un producto
-// manager.updateProduct(2, { price: 12, stock: 15 });
-
-// // Eliminar un producto
-// manager.deleteProduct(4);
-
-// console.log(manager.getProducts());
-

@@ -4,93 +4,16 @@ import ProductManager from './ProductManager.js';
 const app = express();
 const port = 8080;
 
-// Crear una instancia de ProductManager
+app.use(express.json());
+
 const filePath = './productos.json';
 const productManager = new ProductManager(filePath);
 
-/* productManager.addProduct({
-  title: 'Chupetines',
-  description: 'Leritier de frutilla',
-  price: 10,
-  thumbnail: 'imagen1.jpg',
-  code: 'CODE001',
-  stock: 20,
-});
-productManager.addProduct({
-  title: 'Alfajor',
-  description: 'Milka triple',
-  price: 15,
-  thumbnail: 'imagen2.jpg',
-  code: 'CODE002',
-  stock:10,
-});
-productManager.addProduct({
-title: 'Barra de chocolate',
-description: 'Cofler aireado',
-price: 20,
-thumbnail: 'imagen3.jpg',
-code: 'CODE003',
-stock: 5,
-});
-productManager.addProduct({
-  title: 'Caramelo',
-  description: 'Sabor miel',
-  price: 12,
-  thumbnail: 'imagen4.jpg',
-  code: 'CODE004',
-  stock: 510,
-});
-productManager.addProduct({
-  title: 'Caramelo Flynpaff',
-  description: 'Sabor frutilla',
-  price: 30,
-  thumbnail: 'imagen5.jpg',
-  code: 'CODE005',
-  stock: 300,
-});
-productManager.addProduct({
-  title: 'Gomitas',
-  description: 'Mogul multifruta',
-  price: 100,
-  thumbnail: 'imagen6.jpg',
-  code: 'CODE006',
-  stock: 80,
-});
-productManager.addProduct({
-  title: 'Galletitas Oreo',
-  description: 'Galletitas rellenas',
-  price: 150,
-  thumbnail: 'imagen7.jpg',
-  code: 'CODE007',
-  stock: 45,
-});
-productManager.addProduct({
-  title: 'Chicles Beldent',
-  description: 'Sabor menta',
-  price: 210,
-  thumbnail: 'imagen8.jpg',
-  code: 'CODE008',
-  stock: 110,
-});
-productManager.addProduct({
-  title: 'Coca Cola',
-  description: 'Gaseosa sabor cola 600cc',
-  price: 270,
-  thumbnail: 'imagen9.jpg',
-  code: 'CODE009',
-  stock: 38,
-});
-productManager.addProduct({
-  title: 'Galletitas Don Satur',
-  description: 'Galletitas agridulces',
-  price: 110,
-  thumbnail: 'imagen10.jpg',
-  code: 'CODE0010',
-  stock: 55,
-}); */
+// Manejo de rutas para productos
+const productsRouter = express.Router();
 
-// Endpoint para obtener todos los productos o un número limitado de productos
-app.get('/products', async (req, res) => {
+// Listar todos los productos
+productsRouter.get('/', async (req, res) => {
   try {
     const limit = req.query.limit ? parseInt(req.query.limit) : null;
     const products = await productManager.getProducts(limit);
@@ -100,8 +23,8 @@ app.get('/products', async (req, res) => {
   }
 });
 
-// Endpoint para obtener un producto por su ID
-app.get('/products/:pid', async (req, res) => {
+// Obtener un producto por su ID
+productsRouter.get('/:pid', async (req, res) => {
   try {
     const pid = parseInt(req.params.pid);
     const product = await productManager.getProductById(pid);
@@ -115,7 +38,124 @@ app.get('/products/:pid', async (req, res) => {
   }
 });
 
-// Iniciar el servidor
+// Agregar un nuevo producto
+productsRouter.post('/', (req, res) => {
+  try {
+    productManager.addProduct(req.body);
+    res.status(201).json({ message: 'Producto agregado correctamente.' });
+  } catch (error) {
+    res.status(400).json({ error: 'Error al agregar el producto.' });
+  }
+});
+
+// Actualizar un producto por su ID
+productsRouter.put('/:pid', (req, res) => {
+  try {
+    const pid = parseInt(req.params.pid);
+    productManager.updateProduct(pid, req.body);
+    res.json({ message: 'Producto actualizado correctamente.' });
+  } catch (error) {
+    res.status(400).json({ error: 'Error al actualizar el producto.' });
+  }
+});
+
+// Eliminar un producto por su ID
+productsRouter.delete('/:pid', (req, res) => {
+  try {
+    const pid = parseInt(req.params.pid);
+    productManager.deleteProduct(pid);
+    res.json({ message: 'Producto eliminado correctamente.' });
+  } catch (error) {
+    res.status(400).json({ error: 'Error al eliminar el producto.' });
+  }
+});
+
+app.use('/api/products', productsRouter);
+
+// Manejo de rutas para carritos
+const cartsRouter = express.Router();
+
+// Crear un nuevo carrito
+cartsRouter.post('/', (req, res) => {
+  try {
+    // Crear un nuevo carrito con un ID autogenerado
+    const cartId = generateCartId();
+    const newCart = { id: cartId, products: [] };
+    // Guardar el carrito en el archivo
+    saveCart(newCart);
+    res.status(201).json({ message: 'Carrito creado correctamente.', cartId });
+  } catch (error) {
+    res.status(400).json({ error: 'Error al crear el carrito.' });
+  }
+});
+
+// Obtener los productos de un carrito por su ID
+cartsRouter.get('/:cid', (req, res) => {
+  try {
+    const cid = req.params.cid;
+    const cart = loadCart(cid);
+    if (cart) {
+      res.json(cart.products);
+    } else {
+      res.status(404).json({ error: 'Carrito no encontrado.' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Ocurrió un error al obtener el carrito.' });
+  }
+});
+
+// Agregar un producto a un carrito por su ID
+cartsRouter.post('/:cid/product/:pid', (req, res) => {
+  try {
+    const cid = req.params.cid;
+    const pid = parseInt(req.params.pid);
+    const cart = loadCart(cid);
+    if (cart) {
+      const existingProduct = cart.products.find((product) => product.id === pid);
+      if (existingProduct) {
+        existingProduct.quantity++;
+      } else {
+        cart.products.push({ id: pid, quantity: 1 });
+      }
+      saveCart(cart);
+      res.json({ message: 'Producto agregado al carrito correctamente.' });
+    } else {
+      res.status(404).json({ error: 'Carrito no encontrado.' });
+    }
+  } catch (error) {
+    res.status(400).json({ error: 'Error al agregar el producto al carrito.' });
+  }
+});
+
+app.use('/api/carts', cartsRouter);
+
 app.listen(port, () => {
   console.log(`Servidor corriendo en http://localhost:${port}`);
 });
+
+// Funciones auxiliares
+
+function generateCartId() {
+  // Generar un ID único para el carrito
+  return Date.now().toString(36);
+}
+
+function loadCart(cartId) {
+  try {
+    const data = fs.readFileSync(`./cart_${cartId}.json`, 'utf8');
+    if (data) {
+      return JSON.parse(data);
+    }
+  } catch (error) {
+    console.log('Error al leer el carrito:', error.message);
+  }
+  return null;
+}
+
+function saveCart(cart) {
+  try {
+    fs.writeFileSync(`./cart_${cart.id}.json`, JSON.stringify(cart), 'utf8');
+  } catch (error) {
+    console.log('Error al guardar el carrito:', error.message);
+  }
+}
