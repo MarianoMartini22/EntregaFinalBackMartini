@@ -1,0 +1,24 @@
+[
+  {
+    "id": 1,
+    "title": "test",
+    "description": "test descripcion",
+    "price": 1000,
+    "thumbnails": "imgs.png",
+    "code": "ABCCODE",
+    "stock": 9999,
+    "category": "categoria",
+    "status": true
+  },
+  {
+    "id": 2,
+    "title": "test 2",
+    "description": "test descripcion",
+    "price": 1000,
+    "thumbnails": "imgs.png",
+    "code": "ABCCODE2",
+    "stock": 9999,
+    "category": "categoria",
+    "status": true
+  }
+]

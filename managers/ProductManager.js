@@ -1,4 +1,4 @@
-import fs from 'fs';
+const fs = require('fs');
 
 
 class ProductManager {
@@ -24,14 +24,14 @@ class ProductManager {
 
   saveProducts() {
     try {
-      fs.writeFileSync(this.path, JSON.stringify(this.products), 'utf8');
+      fs.writeFileSync(this.path, JSON.stringify(this.products, null, 2), 'utf8');
     } catch (error) {
       console.log('Error al guardar en el archivo:', error.message);
     }
   }
 
   addProduct(product) {
-    if (!product.title || !product.description || !product.price || !product.thumbnail || !product.code || !product.stock) {
+    if (!product.title && !product.description && !product.price && !product.code && !product.stock && !product.category) {
       console.log('Error: Todos los campos son obligatorios.');
       return;
     }
@@ -40,15 +40,18 @@ class ProductManager {
       console.log('Error: El código ya está en uso.', product.code);
       return;
     }
-
+    if (typeof product.status !== 'boolean')  product.status = true;
+    
     const newProduct = {
       id: this.nextId,
       title: product.title,
       description: product.description,
       price: product.price,
-      thumbnail: product.thumbnail,
+      thumbnails: product.thumbnails,
       code: product.code,
       stock: product.stock,
+      category: product.category,
+      status: product.status,
     };
 
     this.products.push(newProduct);
@@ -66,7 +69,7 @@ class ProductManager {
   }
 
   getProductById(id) {
-    const product = this.products.find((product) => product.id === id);
+    const product = this.products.find((product) => product.id === +id);
     if (product) {
       return product;
     } else {
@@ -78,15 +81,21 @@ class ProductManager {
   updateProduct(id, updatedFields) {
     const index = this.products.findIndex((product) => product.id === id);
     if (index !== -1) {
-      const updatedProduct = { ...this.products[index], ...updatedFields, id: this.products[index].id };
-      this.products[index] = updatedProduct;
+      const productToUpdate = this.products[index];
+  
+      for (const field in updatedFields) {
+        if (productToUpdate.hasOwnProperty(field) && field.toLowerCase() !== 'id') {
+          productToUpdate[field] = updatedFields[field];
+        }
+      }
+  
+      this.products[index] = productToUpdate;
       this.saveProducts();
     } else {
       console.log('Error: Producto no encontrado.');
     }
   }
   
-
   deleteProduct(id) {
     const index = this.products.findIndex((product) => product.id === id);
     if (index !== -1) {
@@ -98,4 +107,4 @@ class ProductManager {
   }
 }
 
-export default ProductManager
+module.exports = ProductManager
