@@ -1,6 +1,5 @@
 const fs = require('fs');
 
-
 class ProductManager {
   constructor(filePath) {
     this.path = filePath;
@@ -18,7 +17,7 @@ class ProductManager {
         this.nextId = lastProduct ? lastProduct.id + 1 : 1;
       }
     } catch (error) {
-      console.log('Error al leer el archivo:', error.message);
+      throw new Error(`Error al leer el archivo: ${error.message}`);
     }
   }
 
@@ -26,21 +25,22 @@ class ProductManager {
     try {
       fs.writeFileSync(this.path, JSON.stringify(this.products, null, 2), 'utf8');
     } catch (error) {
-      console.log('Error al guardar en el archivo:', error.message);
+      throw new Error(`Error al guardar en el archivo: ${error.message}`);
     }
   }
 
   addProduct(product) {
     if (!product.title && !product.description && !product.price && !product.code && !product.stock && !product.category) {
-      console.log('Error: Todos los campos son obligatorios.');
-      return;
+      throw new Error('Error: Todos los campos son obligatorios.');
     }
 
     if (this.isCodeDuplicate(product.code)) {
-      console.log('Error: El código ya está en uso.', product.code);
-      return;
+      throw new Error(`Error: El código ya está en uso: ${product.code}`);
     }
-    if (typeof product.status !== 'boolean')  product.status = true;
+
+    if (typeof product.status !== 'boolean') {
+      product.status = true;
+    }
     
     const newProduct = {
       id: this.nextId,
@@ -64,7 +64,9 @@ class ProductManager {
   }
 
   getProducts(limit) {
-    if (limit && limit > 0) return this.products.slice(0, limit);
+    if (limit && limit > 0) {
+      return this.products.slice(0, limit);
+    }
     return this.products;
   }
 
@@ -73,8 +75,7 @@ class ProductManager {
     if (product) {
       return product;
     } else {
-      console.log('Error: Producto no encontrado.');
-      return null;
+      throw new Error('Error: Producto no encontrado.');
     }
   }
 
@@ -92,7 +93,7 @@ class ProductManager {
       this.products[index] = productToUpdate;
       this.saveProducts();
     } else {
-      console.log('Error: Producto no encontrado.');
+      throw new Error('Error: Producto no encontrado.');
     }
   }
   
@@ -102,9 +103,9 @@ class ProductManager {
       this.products.splice(index, 1);
       this.saveProducts();
     } else {
-      console.log('Error: Producto no encontrado.');
+      throw new Error('Error: Producto no encontrado.');
     }
   }
 }
 
-module.exports = ProductManager
+module.exports = ProductManager;

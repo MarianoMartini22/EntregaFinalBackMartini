@@ -1,6 +1,5 @@
 const fs = require('fs');
 
-
 class CartManager {
   constructor(filePath) {
     this.path = filePath;
@@ -18,27 +17,27 @@ class CartManager {
       }
       return [];
     } catch (error) {
-      console.log('Error al leer el archivo del carrito:', error.message);
+      throw new Error('Error al leer el archivo del carrito: ' + error.message);
     }
   }
 
   saveCartData(cart, cId) {
     try {
       let carts = this.loadCartData();
-      
+
       const existingCartIndex = carts.findIndex(c => c.id === cId);
       if (existingCartIndex !== -1) {
         carts[existingCartIndex].products = cart.products;
       } else {
         carts.push(cart);
       }
-      
+
       fs.writeFileSync(this.path, JSON.stringify(carts, null, 2), 'utf8');
       console.log('Archivo del carrito guardado exitosamente.');
     } catch (error) {
-      console.log('Error al guardar en el archivo del carrito:', error.message);
+      throw new Error('Error al guardar en el archivo del carrito: ' + error.message);
     }
   }
 }
 
-module.exports = CartManager
+module.exports = CartManager;

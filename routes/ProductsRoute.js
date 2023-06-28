@@ -1,4 +1,3 @@
-
 const express = require('express');
 const ProductManager = require('../managers/ProductManager');
 const filePath = './data/productos.json';
@@ -15,7 +14,7 @@ productsRoute.get('/', async (req, res) => {
     const products = await productManager.getProducts(limit);
     res.json(products);
   } catch (error) {
-    res.status(500).json({ error: 'Ocurrió un error al obtener los productos.' });
+    res.status(500).json({ error: 'Ocurrió un error al obtener los productos.', detailError: error.message });
   }
 });
 
@@ -30,7 +29,7 @@ productsRoute.get('/:pid', async (req, res) => {
       res.status(404).json({ error: 'Producto no encontrado.' });
     }
   } catch (error) {
-    res.status(500).json({ error: 'Ocurrió un error al obtener el producto.' });
+    res.status(500).json({ error: 'Ocurrió un error al obtener el producto.', detailError: error.message  });
   }
 });
 
@@ -40,7 +39,7 @@ productsRoute.post('/', (req, res) => {
     productManager.addProduct(req.body);
     res.status(201).json({ message: 'Producto agregado correctamente.' });
   } catch (error) {
-    res.status(400).json({ error: 'Error al agregar el producto.' });
+    res.status(400).json({ error: 'Error al agregar el producto.', detailError: error.message });
   }
 });
 
@@ -51,7 +50,7 @@ productsRoute.put('/:pid', (req, res) => {
     productManager.updateProduct(pid, req.body);
     res.json({ message: 'Producto actualizado correctamente.' });
   } catch (error) {
-    res.status(400).json({ error: 'Error al actualizar el producto.' });
+    res.status(400).json({ error: 'Error al actualizar el producto.', detailError: error.message });
   }
 });
 
@@ -62,7 +61,7 @@ productsRoute.delete('/:pid', (req, res) => {
     productManager.deleteProduct(pid);
     res.json({ message: 'Producto eliminado correctamente.' });
   } catch (error) {
-    res.status(400).json({ error: 'Error al eliminar el producto.' });
+    res.status(400).json({ error: 'Error al eliminar el producto.', detailError: error.message });
   }
 });
 

@@ -27,85 +27,82 @@ cartRoute.get('/:cid', (req, res) => {
 
     res.json(products);
   } catch (error) {
-    res.status(500).json({ error: 'Ocurrió un error al obtener los productos del carrito.' });
+    res.status(500).json({ error: 'Error al obtener carrito', detailError: error.message });
   }
 });
 
 initializeLastCartId();
 
 cartRoute.post('/', (req, res) => {
-  const products = req.body.products;
-  
-  const addedProductCodes = {};
-  const cartProducts = [];
+  try {
+    const products = req.body.products;
 
-  for (const product of products) {
-    const isValidProduct = productManager.getProductById(product.id);
-    if (!isValidProduct) {
-      res.status(404).json({ message: `El producto con código ${product.code} no existe.` });
-      return;
+    const addedProductCodes = {};
+    const cartProducts = [];
+
+    for (const product of products) {
+      const isValidProduct = productManager.getProductById(product.id);
+      if (!isValidProduct) {
+        return res.status(404).json({ error: `El producto con código ${product.code} no existe.` });
+      }
+
+      if (addedProductCodes[product.code]) {
+        return res.status(400).json({ error: `El producto con código ${product.code} está duplicado.` });
+      }
+
+      addedProductCodes[product.code] = true;
+      cartProducts.push(product);
     }
 
-    if (addedProductCodes[product.code]) {
-      res.status(400).json({ message: `El producto con código ${product.code} está duplicado.` });
-      return;
-    }
+    const cId = generateNewCartId();
+    const cart = {
+      id: cId,
+      products: cartProducts,
+    };
 
-    addedProductCodes[product.code] = true;
-    cartProducts.push(product);
+    cartManager.saveCartData(cart);
+    res.json({ message: 'Productos agregados al carrito correctamente.' });
+  } catch (error) {
+    res.status(500).json({ detailError: error.message, error: 'Error al agregar productos' });
   }
-
-  const cId = generateNewCartId();
-  const cart = {
-    id: cId,
-    products: cartProducts,
-  };
-
-  cartManager.saveCartData(cart);
-  res.json({ message: 'Productos agregados al carrito correctamente.' });
 });
-
-
 
 cartRoute.post('/:cid/product/:pid', (req, res) => {
-  const cId = req.params.cid;
-  const pId = req.params.pid;
-  
-  const isValidProduct = productManager.getProductById(pId);
+  try {
+    const cId = req.params.cid;
+    const pId = req.params.pid;
 
-  if (!isValidProduct) {
-    res.status(404).json({ message: 'El producto no existe o no es válido.' });
-    return;
+    const isValidProduct = productManager.getProductById(pId);
+
+    if (!isValidProduct) {
+      return res.status(404).json({ error: 'El producto no existe o no es válido.' });
+    }
+
+    let cart = cartManager.loadCartData(cId);
+
+    if (!cart) {
+      return res.status(404).json({ error: 'El carrito no existe.' });
+    }
+
+    const existingProduct = cart.products.find(product => product?.id === pId || product?.product?.id === pId);
+    if (existingProduct) {
+      existingProduct.product.quantity += 1;
+      cartManager.saveCartData(cart, cId);
+      res.json({ message: 'Producto agregado al carrito correctamente.' });
+    } else {
+      const newProduct = {
+        id: pId,
+        quantity: 1,
+      };
+
+      cart.products.push({ product: newProduct });
+
+      cartManager.saveCartData(cart, cId);
+      res.json({ message: 'Producto agregado al carrito correctamente.' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Error al agregar carrito', detailError: error.message });
   }
-
-  let cart = cartManager.loadCartData(cId);
-
-  if (!cart) {
-    res.status(404).json({ message: 'El carrito no existe.' });
-    return;
-  }
-
-  const existingProduct = cart.products.find(product => product?.id === pId || product?.product?.id === pId);
-  if (existingProduct) {
-    existingProduct.product.quantity += 1;
-    cartManager.saveCartData(cart, cId);
-    res.json({ message: 'Producto agregado al carrito correctamente.' });
-    return;
-  }
-
-  const newProduct = {
-    id: pId,
-    quantity: 1,
-  };
-
-  cart.products.push({product: newProduct});
-
-  cartManager.saveCartData(cart, cId);
-  res.json({ message: 'Producto agregado al carrito correctamente.' });
 });
-
-
-
-
 
 module.exports = cartRoute;
