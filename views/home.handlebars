@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Productos</title>
+</head>
+<body>
+    {{#each products}}
+        <h1>Producto {{@key}}</h1>
+        <ul>
+            <li>
+                {{#with this}}
+                    id: {{id}}
+                {{/with}}
+            </li>
+            <li>
+                {{#with this}}
+                    title: {{title}}
+                {{/with}}
+            </li>
+            <li>
+                {{#with this}}
+                    description: {{description}}
+                {{/with}}
+            </li>
+            <li>
+                {{#with this}}
+                    price: {{price}}
+                {{/with}}
+            </li>
+            <li>
+                {{#with this}}
+                    thumbnails: {{thumbnails}}
+                {{/with}}
+            </li>
+            <li>
+                {{#with this}}
+                    code: {{code}}
+                {{/with}}
+            </li>
+            <li>
+                {{#with this}}
+                    stock: {{stock}}
+                {{/with}}
+            </li>
+            <li>
+                {{#with this}}
+                    category: {{category}}
+                {{/with}}
+            </li>
+            <li>
+                {{#with this}}
+                    status: {{status}}
+                {{/with}}
+            </li>
+        </ul>
+    {{/each}}
+</body>
+</html>

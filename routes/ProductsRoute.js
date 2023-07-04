@@ -12,7 +12,10 @@ productsRoute.get('/', async (req, res) => {
   try {
     const limit = req.query.limit ? parseInt(req.query.limit) : null;
     const products = await productManager.getProducts(limit);
-    res.json(products);
+    res.render('home', {
+      products,
+    });
+    // res.json(products);
   } catch (error) {
     res.status(500).json({ error: 'Ocurrió un error al obtener los productos.', detailError: error.message });
   }
