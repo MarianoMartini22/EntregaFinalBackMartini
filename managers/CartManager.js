@@ -1,8 +1,13 @@
-const fs = require('fs');
+import fs from 'fs';
+import path, { dirname } from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath( import.meta.url );
+const __dirname = dirname( __filename );
 
+const CART_FILE_PATH = path.resolve( __dirname, '../data/carrito.json' );
 class CartManager {
-  constructor(filePath) {
-    this.path = filePath;
+  constructor() {
+    this.path = CART_FILE_PATH;
     this.carts = [];
     this.nextId = 1;
   }
@@ -40,4 +45,4 @@ class CartManager {
   }
 }
 
-module.exports = CartManager;
+export default CartManager;

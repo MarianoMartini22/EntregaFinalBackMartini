@@ -1,8 +1,15 @@
-const fs = require('fs');
+import fs from 'fs';
+import path, { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath( import.meta.url );
+const __dirname = dirname( __filename );
+
+const PRODUCTS_FILE_PATH = path.resolve( __dirname, '../data/productos.json' );
 
 class ProductManager {
-  constructor(filePath) {
-    this.path = filePath;
+  constructor() {
+    this.path = PRODUCTS_FILE_PATH;
     this.products = [];
     this.nextId = 1;
     this.loadProducts();
@@ -63,7 +70,7 @@ class ProductManager {
     return this.products.some((product) => product.code === code);
   }
 
-  getProducts(limit) {
+  getProducts(limit=Infinity) {
     if (limit && limit > 0) {
       return this.products.slice(0, limit);
     }
@@ -108,4 +115,4 @@ class ProductManager {
   }
 }
 
-module.exports = ProductManager;
+export default ProductManager;

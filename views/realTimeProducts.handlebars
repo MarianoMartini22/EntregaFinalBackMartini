@@ -1,11 +1,10 @@
 <main>
-    <h1 class="text-center text-primary m-5">PRODUCTOS HASTA EL MOMENTO</h1>
+    <h1 class="text-center text-primary m-5">PRODUCTOS EN VIVO</h1>
     <section class="m-5">
         <div class="d-flex justify-content-center">
             <table class="table table-striped table-bordered">
                 <thead class="bg-primary text-white">
                     <tr>
-                        <th scope="col">Producto</th>
                         <th scope="col">ID</th>
                         <th scope="col">Título</th>
                         <th scope="col">Descripción</th>
@@ -20,7 +19,6 @@
                 <tbody>
                     {{#each products}}
                     <tr>
-                        <td>{{this.code}}</td>
                         <td>{{this.id}}</td>
                         <td>{{this.title}}</td>
                         <td>{{this.description}}</td>
@@ -37,3 +35,6 @@
         </div>
     </section>
 </main>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/products.js"></script>

@@ -1,4 +1,5 @@
-const fs = require('fs');
+import fs from 'fs';
+
 let lastCartId = 0;
 
 function readLastCartId() {
@@ -35,7 +36,7 @@ function initializeLastCartId() {
     lastCartId = readLastCartId();
 }
 
-module.exports = {
+export {
     generateNewCartId,
     initializeLastCartId,
 }

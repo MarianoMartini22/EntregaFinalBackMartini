@@ -11,14 +11,14 @@
     "status": true
   },
   {
-    "id": 2,
-    "title": "test 2",
+    "id": 3,
+    "title": "tess",
     "description": "test descripcion",
     "price": 1000,
     "thumbnails": "imgs.png",
-    "code": "ABCCODE2",
+    "code": "ABCCODES111a1",
     "stock": 9999,
-    "category": "categoria",
+    "category": "categorias",
     "status": true
   }
 ]
