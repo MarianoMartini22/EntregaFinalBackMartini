@@ -1,14 +1,11 @@
-const express = require('express');
-const CartManager = require('../managers/CartManager');
-const ProductManager = require('../managers/ProductManager');
-
-const { generateNewCartId, initializeLastCartId } = require('../helpers');
+import express from 'express';
+import CartManager from '../managers/CartManager.js';
+import ProductManager from '../managers/ProductManager.js';
+import { generateNewCartId, initializeLastCartId } from '../helpers.js';
 
 const cartRoute = express.Router();
-const filePath = './data/carrito.json';
-const filePathProduct = './data/productos.json';
-const cartManager = new CartManager(filePath);
-const productManager = new ProductManager(filePathProduct);
+const cartManager = new CartManager();
+const productManager = new ProductManager();
 
 cartRoute.get('/:cid', (req, res) => {
   try {
@@ -35,29 +32,10 @@ initializeLastCartId();
 
 cartRoute.post('/', (req, res) => {
   try {
-    const products = req.body.products;
-
-    const addedProductCodes = {};
-    const cartProducts = [];
-
-    for (const product of products) {
-      const isValidProduct = productManager.getProductById(product.id);
-      if (!isValidProduct) {
-        return res.status(404).json({ error: `El producto con código ${product.code} no existe.` });
-      }
-
-      if (addedProductCodes[product.code]) {
-        return res.status(400).json({ error: `El producto con código ${product.code} está duplicado.` });
-      }
-
-      addedProductCodes[product.code] = true;
-      cartProducts.push(product);
-    }
-
     const cId = generateNewCartId();
     const cart = {
       id: cId,
-      products: cartProducts,
+      products: [],
     };
 
     cartManager.saveCartData(cart);
@@ -105,4 +83,4 @@ cartRoute.post('/:cid/product/:pid', (req, res) => {
   }
 });
 
-module.exports = cartRoute;
+export default cartRoute;
