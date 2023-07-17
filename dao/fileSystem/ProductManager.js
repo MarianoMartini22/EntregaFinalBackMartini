@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath( import.meta.url );
 const __dirname = dirname( __filename );
 
-const PRODUCTS_FILE_PATH = path.resolve( __dirname, '../data/productos.json' );
+const PRODUCTS_FILE_PATH = path.resolve( __dirname, '../../data/productos.json' );
 
 class ProductManager {
   constructor() {

@@ -1,19 +1,24 @@
 import express from 'express';
+import dotenv from 'dotenv';
 import { engine } from 'express-handlebars';
 import path from 'path';
 import __dirname from './utils/utils.js';
 import { Server } from 'socket.io';
 
-const app = express();
-const PORT = 8080;
 
 const router = express.Router();
 import productsRoute from './routes/ProductsRoute.js';
 import cartRoute from './routes/CartsRoute.js';
 import viewsRouter from './routes/ViewsRouter.js';
+import dbConnection from './utils/db.js';
 
+dotenv.config();
+
+const app = express();
+const PORT = process.env.PORT;
 const httpServer = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  dbConnection();
 });
 const socketServer = new Server(httpServer);
 

@@ -1,6 +1,6 @@
 import express from 'express';
-import CartManager from '../managers/CartManager.js';
-import ProductManager from '../managers/ProductManager.js';
+import CartManager from '../dao/fileSystem/CartManager.js';
+import ProductManager from '../dao/fileSystem/ProductManager.js';
 import { generateNewCartId, initializeLastCartId } from '../helpers.js';
 
 const cartRoute = express.Router();

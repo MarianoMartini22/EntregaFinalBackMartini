@@ -1,5 +1,5 @@
 import express from 'express';
-import ProductManager from '../managers/ProductManager.js';
+import ProductManager from '../dao/fileSystem/ProductManager.js';
 
 const viewsRoute = express.Router();
 const productManager = new ProductManager();
