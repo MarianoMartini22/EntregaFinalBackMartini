@@ -1,13 +1,13 @@
 [
   {
     "id": 1,
-    "title": "test",
+    "title": "tess",
     "description": "test descripcion",
     "price": 1000,
     "thumbnails": "imgs.png",
-    "code": "ABCCODE",
+    "code": "ABCCODES111a1",
     "stock": 9999,
-    "category": "categoria",
+    "category": "categorias",
     "status": true
   },
   {

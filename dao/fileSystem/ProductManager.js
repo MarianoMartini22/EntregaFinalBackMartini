@@ -86,8 +86,8 @@ class ProductManager {
     }
   }
 
-  updateProduct(id, updatedFields) {
-    const index = this.products.findIndex((product) => product.id === id);
+  async updateProduct(id, updatedFields) {
+    const index = this.products.findIndex((product) => product.id === +id);
     if (index !== -1) {
       const productToUpdate = this.products[index];
   
@@ -105,7 +105,7 @@ class ProductManager {
   }
   
   deleteProduct(id) {
-    const index = this.products.findIndex((product) => product.id === id);
+    const index = this.products.findIndex((product) => product.id === +id);
     if (index !== -1) {
       this.products.splice(index, 1);
       this.saveProducts();

@@ -1,25 +1,41 @@
 import express from 'express';
-import CartManager from '../dao/fileSystem/CartManager.js';
-import ProductManager from '../dao/fileSystem/ProductManager.js';
-import { generateNewCartId, initializeLastCartId } from '../helpers.js';
+import CartManagerFS from '../dao/fileSystem/CartManager.js';
+import cartManagerMongo from '../dao/mongoDB/CartManager.js';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+// import ProductManager from '../dao/fileSystem/ProductManager.js';
+import { initializeLastCartId } from '../helpers.js';
 
 const cartRoute = express.Router();
-const cartManager = new CartManager();
-const productManager = new ProductManager();
+/*
+**********************
+Para alternar las base de datos se puede cambiar el .env (BD).
+Posibles valores:
+1- fs (filesystem)
+2- mongodb
+Por defecto será mongoDB
+**********************
+*/
+let cartManager = null;
+switch (process.env.DB) {
+  case 'fs':
+    cartManager = new CartManagerFS();
+    break;
+  case 'mongodb':
+    cartManager = new cartManagerMongo();
+    break;
+  default:
+    cartManager = new cartManagerMongo();
+    break;
+}
+// const productManager = new ProductManager();
 
-cartRoute.get('/:cid', (req, res) => {
+cartRoute.get('/:cid', async (req, res) => {
   try {
     const cid = req.params.cid;
-    const cart = cartManager.loadCartData(cid);
-
-    if (!cart) {
-      return res.status(404).json({ error: 'Carrito no encontrado.' });
-    }
-
-    if (cart.products.length === 0) {
-      return res.status(404).json({ error: 'No hay items en el carrito.' });
-    }
-
+    const cart = await cartManager.getCartById(cid);
     const products = cart.products;
 
     res.json(products);
@@ -32,54 +48,24 @@ initializeLastCartId();
 
 cartRoute.post('/', (req, res) => {
   try {
-    const cId = generateNewCartId();
-    const cart = {
-      id: cId,
-      products: [],
-    };
-
-    cartManager.saveCartData(cart);
-    res.json({ message: 'Productos agregados al carrito correctamente.' });
+    cartManager.createCart();
+    res.json({ message: 'Carrito agragado con éxito.' });
   } catch (error) {
-    res.status(500).json({ detailError: error.message, error: 'Error al agregar productos' });
+    res.status(500).json({ detailError: error.message, error: 'Error al agregar carrito' });
   }
 });
 
-cartRoute.post('/:cid/product/:pid', (req, res) => {
+cartRoute.post('/:cid/product/:pid', async (req, res) => {
   try {
     const cId = req.params.cid;
     const pId = req.params.pid;
+    
+    const cart = await cartManager.addProductToCart(cId, pId);
 
-    const isValidProduct = productManager.getProductById(pId);
+    res.json({ message: 'Producto agregado al carrito correctamente.', cart });
 
-    if (!isValidProduct) {
-      return res.status(404).json({ error: 'El producto no existe o no es válido.' });
-    }
-
-    let cart = cartManager.loadCartData(cId);
-
-    if (!cart) {
-      return res.status(404).json({ error: 'El carrito no existe.' });
-    }
-
-    const existingProduct = cart.products.find(product => product?.id === pId || product?.product?.id === pId);
-    if (existingProduct) {
-      existingProduct.product.quantity += 1;
-      cartManager.saveCartData(cart, cId);
-      res.json({ message: 'Producto agregado al carrito correctamente.' });
-    } else {
-      const newProduct = {
-        id: pId,
-        quantity: 1,
-      };
-
-      cart.products.push({ product: newProduct });
-
-      cartManager.saveCartData(cart, cId);
-      res.json({ message: 'Producto agregado al carrito correctamente.' });
-    }
   } catch (error) {
-    res.status(500).json({ error: 'Error al agregar carrito', detailError: error.message });
+    res.status(500).json({ error: 'Error al agregar producto al carrito', detailError: error.message });
   }
 });
 
