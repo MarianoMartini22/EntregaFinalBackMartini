@@ -84,7 +84,6 @@ class CartsManager {
             // Update the products array
             cart.products = products;
 
-            console.log( cart );
 
             // Save the cart back to the database
             await cart.save();
