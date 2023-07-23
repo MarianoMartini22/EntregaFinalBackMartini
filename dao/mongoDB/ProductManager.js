@@ -28,15 +28,14 @@ class ProductManager {
         let whereOptions = {};
 
         if ( filter && filterValue ) {
-            whereOptions = { [ filter ]: filterValue };
+            whereOptions = { [filter]: { $regex: filterValue, $options: 'i' } };
         }
 
-        // Determine the sort order
         let sortOrder;
         if ( sort === 'desc' ) {
             sortOrder = -1;
         } else {
-            sortOrder = 1; // Default to ascending if anything other than 'desc' is passed
+            sortOrder = 1;
         }
         const result = await productsModel.paginate( whereOptions,
             {
@@ -45,7 +44,7 @@ class ProductManager {
                 sort: { price: sortOrder },
             }
         );
-        return result.docs;
+        return result;
     };
 
     async getProductById ( id ) {

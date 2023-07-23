@@ -95,20 +95,112 @@ class CartsManager {
             console.error( error );
             throw new Error( 'Failed to update cart' );
         }
-        // try {
-
-        //     const updatedCart = await cartsModel.findByIdAndUpdate(
-        //         { _id: cartId },
-        //         { $set: { products: products } }
-        //     );
-
-        //     return updatedCart;
-
-        // } catch ( error ) {
-        //     console.error( error );
-        //     throw new Error( 'Failed to update cart' );
-        // }
     }
+    async removeProductFromCart(cartId, productId) {
+        try {
+            const cart = await this.getCartById(cartId);
+    
+            if (!cart) {
+                throw new Error('Cart not found');
+            }
+    
+            cart.products = cart.products.filter((productF) => productF.product && productF.product._id !== productId);
+    
+            await cart.save();
+    
+            return { message: 'Producto borrado del carrito correctamente.', cart };
+        } catch (error) {
+            console.error(error);
+            throw new Error('Failed to delete cart');
+        }
+    }
+    async updateCart(cartId, products) {
+        try {
+            const cart = await this.getCartById(cartId);
+            if (!products) products = [];
+            if (!cart) {
+                throw new Error('Cart not found');
+            }
+            const notExists = [];
+            products.map((product) => {
+                const element = this.productsManager.getProductById( product._id );
+                if (!element) {
+                    notExists.push(element);
+                    products.filter((prod) => prod && prod._id !== element._id);
+                }
+            });
+            if (notExists.length > 0) {
+                throw new Error('Products not found: ', notExists);
+            }
+            const unificarProductos = products.reduce((result, product) => {
+                const { product: productId, quantity } = product;
+                if (!result[productId]) {
+                  result[productId] = quantity;
+                } else {
+                  result[productId] += quantity;
+                }
+                return result;
+              }, {});
+              
+              const finalProducts = Object.keys(unificarProductos).map((productId) => ({
+                product: productId,
+                quantity: unificarProductos[productId]
+              }));
+            cart.products = finalProducts;
+    
+            await cart.save();
+    
+            return { message: 'Productos actualizados del carrito correctamente.', cart };
+        } catch (error) {
+            console.error(error);
+            throw new Error('Failed to update cart');
+        }
+    }
+    async updateCartByQuantity(cartId, productId, quantity) {
+        try {
+            const cart = await this.getCartById(cartId);
+            const product = await this.productsManager.getProductById( productId );
+            if (!cart) {
+                throw new Error('Cart not found');
+            }
+            if (!product) {
+                throw new Error('Product not found');
+            }
+            const productIndex = cart.products.findIndex((prod) => prod.product._id.toString() === product._id.toString());
+            if (productIndex === -1) {
+                throw new Error('Product not found in the cart');
+            }
+    
+            cart.products[productIndex].quantity = quantity;
+    
+            await cart.save();
+            return { message: 'Cantidad actualizada del producto (' + product.code + '): ' + quantity };
+        } catch (error) {
+            console.error(error);
+            throw new Error('Failed to update cart');
+        }
+    }
+    async removeAllProductsFromCart(cartId) {
+        try {
+            const cart = await this.getCartById(cartId);
+    
+            if (!cart) {
+                throw new Error('Cart not found');
+            }
+    
+            cart.products = [];
+    
+            await cart.save();
+    
+            return { message: 'Productos borrados del carrito correctamente.', cart };
+        } catch (error) {
+            console.error(error);
+            throw new Error('Failed to delete cart');
+        }
+    }
+    
+    
+    
 };
 
 

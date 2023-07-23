@@ -69,4 +69,55 @@ cartRoute.post('/:cid/product/:pid', async (req, res) => {
   }
 });
 
+cartRoute.delete('/:cid/products/:pid', async (req, res) => {
+  try {
+    const cId = req.params.cid;
+    const pId = req.params.pid;
+    const cart = await cartManager.removeProductFromCart(cId, pId);
+
+    res.json({ message: 'Producto borrado del carrito correctamente.', cart });
+
+  } catch (error) {
+    res.status(500).json({ error: 'Error al borrar producto del carrito', detailError: error.message });
+  }
+});
+cartRoute.delete('/:cid', async (req, res) => {
+  try {
+    const cId = req.params.cid;
+    const cart = await cartManager.removeAllProductsFromCart(cId);
+
+    res.json({ message: 'Productos borrados del carrito correctamente.', cart });
+
+  } catch (error) {
+    res.status(500).json({ error: 'Error al borrar productos del carrito', detailError: error.message });
+  }
+});
+
+cartRoute.put('/:cid', async (req, res) => {
+  try {
+    const cId = req.params.cid;
+    const products = req.body.products;
+    const cart = await cartManager.updateCart(cId, products);
+
+    res.json({ message: 'Productos actualizados en el carrito correctamente.', cart });
+
+  } catch (error) {
+    res.status(500).json({ error: 'Error al actualizar productos del carrito', detailError: error.message });
+  }
+});
+
+cartRoute.put('/:cid/products/:pid', async (req, res) => {
+  try {
+    const cId = req.params.cid;
+    const pId = req.params.pid;
+    const quantity = req.body.quantity;
+    const cart = await cartManager.updateCartByQuantity(cId, pId, quantity);
+
+    res.json({ message: 'Productos actualizados en el carrito correctamente.', cart });
+
+  } catch (error) {
+    res.status(500).json({ error: 'Error al actualizar productos del carrito', detailError: error.message });
+  }
+});
+
 export default cartRoute;

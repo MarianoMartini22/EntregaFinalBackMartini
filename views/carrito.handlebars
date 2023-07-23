@@ -1,0 +1,45 @@
+<main>
+    <h1 class="text-center text-primary m-5">PRODUCTOS EN EL CARRITO</h1>
+    <section class="m-5">
+        <div class="d-flex justify-content-center">
+            <table class="table table-striped table-bordered">
+                <thead class="bg-primary text-white">
+                    <tr>
+                        <th scope="col">Producto</th>
+                        <th scope="col">Título</th>
+                        <th scope="col">Descripción</th>
+                        <th scope="col">Precio</th>
+                        <th scope="col">Thumbnails</th>
+                        <th scope="col">Stock</th>
+                        <th scope="col">Categoría</th>
+                        <th scope="col">Estado</th>
+                        <th scope="col">Cantidad</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#if products}}
+                        {{#each products}}
+                            <tr>
+                                <td>{{this.product.code}}</td>
+                                <td>{{this.product.title}}</td>
+                                <td>{{this.product.description}}</td>
+                                <td>{{this.product.price}}</td>
+                                <td>{{this.product.thumbnails}}</td>
+                                <td>{{this.product.stock}}</td>
+                                <td>{{this.product.category}}</td>
+                                <td>{{this.product.status}}</td>
+                                <td>{{this.quantity}}</td>
+                            </tr>
+                        {{/each}}
+                    {{else}}
+                        <tr>
+                            <td colspan="9" class="text-center">No hay productos en el carrito</td>
+                        </tr>
+                    {{/if}}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/products.js"></script>

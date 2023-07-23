@@ -35,22 +35,53 @@ Por defecto será mongoDB
 // Listar todos los productos
 productsRoute.get('/', async (req, res) => {
   try {
-    /*
+    const baseURL = 'http://localhost:8080/api/products';
     const page = Number( req.query.page );
     const sort = req.query.sort;
     const filter = req.query.filter;
-    const filterValue = req.query.filterValue; */
+    const filterValue = req.query.filterValue;
     const limit = Number( req.query.limit );
     const products = await productManager.getProducts(
       limit,
-      /* page,
+      page,
       sort,
       filter,
-      filterValue */
+      filterValue
     );
-    res.json(products);
+    const prevPageNumber = products.prevPage;
+    const nextPageNumber = products.nextPage;
+
+    let prevLink;
+    let nextLink;
+    if (prevPageNumber) {
+      prevLink = `${baseURL}?page=${prevPageNumber}`;
+    } else {
+      prevLink = null;
+    }
+    if (nextPageNumber) {
+      nextLink = `${baseURL}?page=${nextPageNumber}`;
+    } else {
+      nextLink = null;
+    }
+    if (process.env.DB === 'fs') return res.json(products);
+    res.status(200).json({
+      status: 'success',
+      payload: products.docs,
+      totalPages: products.totalPages,
+      prevPage: products.prevPage,
+      nextPage: products.nextPage,
+      hasPrevPage: (prevPageNumber) ? true : false,
+      hasNextPage: (nextPageNumber) ? true : false,
+      page: (!Number(products.page)) ? 1 : products.page,
+      prevLink,
+      nextLink
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Ocurrió un error al obtener los productos.', detailError: error.message });
+    res.status(500).json({
+      status: 'error',
+      error: 'Ocurrió un error al obtener los productos.',
+      detailError: error.message
+    });
   }
 });
 
@@ -74,7 +105,7 @@ productsRoute.post('/', async (req, res) => {
   try {
     await productManager.addProduct(req.body);
     const products = await productManager.getProducts();
-    req.socketServer.sockets.emit('actualizarProductos', products);
+    req.socketServer.sockets.emit('actualizarProductos', products.docs);
     res.status(201).json({ message: 'Producto agregado correctamente.' });
   } catch (error) {
     res.status(400).json({ error: 'Error al agregar el producto.', detailError: error.message });
