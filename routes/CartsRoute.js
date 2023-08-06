@@ -2,6 +2,7 @@ import express from 'express';
 import CartManagerFS from '../dao/fileSystem/CartManager.js';
 import cartManagerMongo from '../dao/mongoDB/CartManager.js';
 import dotenv from 'dotenv';
+import isAuth from '../middlewares/isAuth.js';
 
 dotenv.config();
 
@@ -31,6 +32,8 @@ switch (process.env.DB) {
     break;
 }
 // const productManager = new ProductManager();
+
+cartRoute.use(isAuth);
 
 cartRoute.get('/:cid', async (req, res) => {
   try {

@@ -2,6 +2,7 @@ import express from 'express';
 import ProductManagerMongo from '../dao/mongoDB/ProductManager.js';
 import ProductManagerFS from '../dao/fileSystem/ProductManager.js';
 import dotenv from 'dotenv';
+import isAuth from '../middlewares/isAuth.js';
 
 dotenv.config();
 
@@ -31,7 +32,7 @@ Por defecto será mongoDB
 **********************
 */
 
-
+productsRoute.use(isAuth);
 // Listar todos los productos
 productsRoute.get('/', async (req, res) => {
   try {

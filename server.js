@@ -13,10 +13,13 @@ import viewsRouter from './routes/ViewsRouter.js';
 import dbConnection from './utils/db.js';
 
 import ChatManager from './dao/mongoDB/ChatManager.js';
+import UserManager from './dao/mongoDB/UserManager.js';
+import session from 'express-session';
 
 dotenv.config();
 
 const chatManager = new ChatManager();
+const userManager = new UserManager();
 const app = express();
 const PORT = process.env.PORT;
 const httpServer = createServer(app);
@@ -37,11 +40,19 @@ app.engine('handlebars', engine({
 app.set('view engine', 'handlebars');
 app.set('views', './views');
 /* fin configuracion handlebars */
-
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(process.cwd(), 'public')));
+
+app.use(
+  session({
+    secret: 'Mayu2023',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false },
+  })
+);
 
 socketServer.on('connect', (socket) => {
   console.log('Usuario conectado con el servidor Socket.io');
@@ -49,6 +60,22 @@ socketServer.on('connect', (socket) => {
   socket.on('saveMessage', async (msg) => {
     const savedMessage = await chatManager.saveMessage(msg);
     socketServer.emit('saveMessage', savedMessage);
+  });
+
+  socket.on('registrarUsuario', async (user) => {
+    const savedUser = await userManager.saveUser(user);
+    socketServer.emit('registrarUsuario', savedUser);
+  });
+
+  socket.on('loginUsuario', async (user) => {
+    const loginUser = await userManager.loginUser(user);
+    socketServer.user = loginUser;
+    socketServer.emit('loginUsuario', loginUser);
+  });
+
+  socket.on('logout', () => {
+    socketServer.user = null;
+    socketServer.emit('logout');
   });
 
   socket.on('uploadChats', async () => {

@@ -3,6 +3,8 @@ import ProductManagerFS from '../dao/fileSystem/ProductManager.js';
 import ProductManagerMongo from '../dao/mongoDB/ProductManager.js';
 import CartManagerFS from '../dao/fileSystem/CartManager.js';
 import CartManagerMongo from '../dao/mongoDB/CartManager.js';
+import isAuth from '../middlewares/isAuth.js';
+
 
 let productManager = null;
 
@@ -44,7 +46,36 @@ Por defecto será mongoDB
 
 const viewsRoute = express.Router();
 
-viewsRoute.get('/productos', async (req, res) => {
+
+
+viewsRoute.get('/register', async (req, res) => {
+  if (!!req.socketServer.user) {
+    res.redirect('/productos');
+    return;
+  }
+  try {
+    res.render('register');
+  } catch (error) {
+    res.status(500).json({ error: 'Ocurrió un error al obtener la vista registro.', detailError: error.message });
+  }
+});
+
+viewsRoute.get('/login', async (req, res) => {
+  if (!!req.socketServer.user) {
+    res.redirect('/productos');
+    return;
+  }
+  try {
+    res.render('login');
+  } catch (error) {
+    res.status(500).json({ error: 'Ocurrió un error al obtener la vista registro.', detailError: error.message });
+  }
+});
+
+viewsRoute.use(isAuth);
+
+
+viewsRoute.get('/productos',async (req, res) => {
   try {
     const baseURL = 'http://localhost:8080/api/products';
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
@@ -57,6 +88,7 @@ viewsRoute.get('/productos', async (req, res) => {
     const plainProducts = products.docs.map((product) => product.toObject({ virtuals: true }));
     const prevPageNumber = products.prevPage;
     const nextPageNumber = products.nextPage;
+    const canLogin = req.query.user;
 
     let prevLink;
     let nextLink;
@@ -90,6 +122,7 @@ viewsRoute.get('/productos', async (req, res) => {
       hasPrevPage: finalProducts.hasPrevPage,
       nextPage: finalProducts.nextPage,
       prevPage: finalProducts.prevPage,
+      user: canLogin,
       limit
     });
   } catch (error) {
@@ -101,7 +134,7 @@ viewsRoute.get('/realtimeproducts', async (req, res) => {
   try {
     const products = await productManager.getProducts();
     req.socketServer.sockets.emit('actualizarProductos', products);
-    res.render('realtimeproducts', {products});
+    res.render('realtimeproducts', {products: products.docs.map((product) => product.toObject({ virtuals: true }))});
   } catch (error) {
     res.status(500).json({ error: 'Ocurrió un error al obtener los productos.', detailError: error.message });
   }
