@@ -23,8 +23,13 @@ function logout() {
     socket.emit('logout');
 }
 
+function handleLogOut() {
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+}
+
 document.getElementById('usuario').innerText = 'Bienvenido ' + localStorage.getItem('user') + '!';
 
 document.getElementById('logoutBtn').addEventListener('click', logout);
-socket.on('logout', () => window.location.href = '/login');
+socket.on('logout', handleLogOut);
 socket.on('actualizarProductos', updateProductos);
