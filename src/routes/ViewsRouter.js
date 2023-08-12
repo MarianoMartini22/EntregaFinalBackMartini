@@ -4,6 +4,7 @@ import ProductManagerMongo from '../dao/mongoDB/ProductManager.js';
 import CartManagerFS from '../dao/fileSystem/CartManager.js';
 import CartManagerMongo from '../dao/mongoDB/CartManager.js';
 import isAuth from '../middlewares/isAuth.js';
+import passport from 'passport';
 
 
 let productManager = null;
@@ -46,8 +47,6 @@ Por defecto será mongoDB
 
 const viewsRoute = express.Router();
 
-
-
 viewsRoute.get('/register', async (req, res) => {
   if (!!req.socketServer.user) {
     res.redirect('/productos');
@@ -72,10 +71,39 @@ viewsRoute.get('/login', async (req, res) => {
   }
 });
 
+viewsRoute.get(
+  "/login-github",
+  passport.authenticate("auth0", {
+    scope: "openid email profile"
+  }),
+  (req, res) => {
+    res.redirect("/productos");
+  }
+);
+
+viewsRoute.get("/callback", (req, res, next) => {
+  passport.authenticate("auth0", (err, user, info) => {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      return res.redirect("/login");
+    }
+    req.logIn(user, (err) => {
+      req.socketServer.user = user;
+      if (err) {
+        return next(err);
+      }
+      delete req.session.returnTo;
+      res.redirect(`/productos?user=${user.nickname}`);
+    });
+  })(req, res, next);
+});
+
 viewsRoute.use(isAuth);
 
 
-viewsRoute.get('/productos',async (req, res) => {
+viewsRoute.get('/productos', async (req, res) => {
   try {
     const baseURL = 'http://localhost:8080/api/products';
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
@@ -89,7 +117,7 @@ viewsRoute.get('/productos',async (req, res) => {
     const prevPageNumber = products.prevPage;
     const nextPageNumber = products.nextPage;
     const canLogin = req.query.user;
-
+    if (req.socketServer.user) req.socketServer.sockets.emit('loginGithub', req.socketServer.user.nickname);
     let prevLink;
     let nextLink;
     if (prevPageNumber) {
@@ -134,7 +162,7 @@ viewsRoute.get('/realtimeproducts', async (req, res) => {
   try {
     const products = await productManager.getProducts();
     req.socketServer.sockets.emit('actualizarProductos', products);
-    res.render('realtimeproducts', {products: products.docs.map((product) => product.toObject({ virtuals: true }))});
+    res.render('realtimeproducts', { products: products.docs.map((product) => product.toObject({ virtuals: true })) });
   } catch (error) {
     res.status(500).json({ error: 'Ocurrió un error al obtener los productos.', detailError: error.message });
   }
@@ -146,9 +174,9 @@ viewsRoute.get('/carts/:cid', async (req, res) => {
     const cart = await cartManager.getCartById(cid);
     if (!cart) res.status(404).json({ error: 'No hay un carrito con esa id.' });
     const products = cart.products.map((prod) => {
-      return { product: prod.product.toJSON(), quantity: prod.quantity}
+      return { product: prod.product.toJSON(), quantity: prod.quantity }
     });
-    res.render('carrito', {products});
+    res.render('carrito', { products });
   } catch (error) {
     res.status(500).json({ error: 'Ocurrió un error al obtener los productos.', detailError: error.message });
   }

@@ -3,23 +3,29 @@ import { userModel } from '../mongoDB/models/usuario.model.js';
 import bcrypt from 'bcrypt';
 
 class UserManager {
-    async saveUser({ nombre, apellido, email, password }) {
+    async saveUser({ nombre, apellido, email, password, github }) {
         try {
             const existingUser = await userModel.findOne({ email }).lean();
-
-            if (existingUser) {
+            if (existingUser && !github) {
                 return {ok: false, error: 'Ya existe un usuario con el mail: ' + email};
             }
-
+            
             let newUser = {};
             if (email === 'adminCoder@coder.com' && password === 'adminCod3r123') newUser = { rol: 'admin' }; 
             const saltRounds = 10;
             const hashedPassword = await bcrypt.hash(password, saltRounds);
-            newUser = {...newUser,
+            (!github) ? newUser = {...newUser,
                 nombre,
                 apellido,
                 email,
                 password: hashedPassword,
+            } : newUser = {
+                ...newUser,
+                nombre: ' ',
+                apellido: ' ',
+                email,
+                password: ' ',
+                github,
             };
             const result = await userModel.create(newUser);
             return {ok: true, user: result};
@@ -45,6 +51,10 @@ class UserManager {
         } catch (error) {
             return { ok: false, error: 'Ocurrió un error al intentar iniciar sesión.' };
         }
+    }
+    async getUserById(id) {
+        const existingUser = await userModel.findOne({ id }).lean();
+        return existingUser;
     }
 };
 

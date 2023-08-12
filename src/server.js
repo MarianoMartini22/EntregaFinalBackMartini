@@ -16,6 +16,8 @@ import __dirname from './utils/utils.js';
 import ChatManager from './dao/mongoDB/ChatManager.js';
 import UserManager from './dao/mongoDB/UserManager.js';
 import session from 'express-session';
+import './passport/local-strategy.js';
+import passport from 'passport';
 
 dotenv.config();
 
@@ -45,7 +47,6 @@ app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
-
 app.use(
   session({
     secret: 'Mayu2023',
@@ -54,6 +55,8 @@ app.use(
     cookie: { secure: false },
   })
 );
+app.use(passport.initialize());
+app.use(passport.session());
 
 socketServer.on('connect', (socket) => {
   console.log('Usuario conectado con el servidor Socket.io');
@@ -72,6 +75,10 @@ socketServer.on('connect', (socket) => {
     const loginUser = await userManager.loginUser(user);
     socketServer.user = loginUser;
     socketServer.emit('loginUsuario', loginUser);
+  });
+
+  socket.on('loginGithub', async (user) => {
+    socketServer.emit('loginGithub', user);
   });
 
   socket.on('logout', () => {

@@ -24,6 +24,10 @@ const UserSchema = new mongoose.Schema({
     type: String,
     default: "usuario",
   },
+  github: {
+    type: Boolean,
+    default: false,
+  }
 });
 
 export const userModel = mongoose.model(collection, UserSchema);

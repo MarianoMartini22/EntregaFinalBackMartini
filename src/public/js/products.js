@@ -28,8 +28,13 @@ function handleLogOut() {
     window.location.href = '/login';
 }
 
-document.getElementById('usuario').innerText = 'Bienvenido ' + localStorage.getItem('user') + '!';
+function updateUser(user) {
+    localStorage.setItem('user', user);
+}
+
+if (localStorage.getItem('user')) document.getElementById('usuario').innerText = 'Bienvenido ' + localStorage.getItem('user') + '!';
 
 document.getElementById('logoutBtn').addEventListener('click', logout);
 socket.on('logout', handleLogOut);
 socket.on('actualizarProductos', updateProductos);
+socket.on('loginGithub', updateUser);
