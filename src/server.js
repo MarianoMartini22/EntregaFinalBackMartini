@@ -11,6 +11,7 @@ import productsRoute from './routes/ProductsRoute.js';
 import cartRoute from './routes/CartsRoute.js';
 import viewsRouter from './routes/ViewsRouter.js';
 import dbConnection from './utils/db.js';
+import __dirname from './utils/utils.js';
 
 import ChatManager from './dao/mongoDB/ChatManager.js';
 import UserManager from './dao/mongoDB/UserManager.js';
@@ -38,12 +39,12 @@ app.engine('handlebars', engine({
 }));
 
 app.set('view engine', 'handlebars');
-app.set('views', './views');
+app.set('views', path.join(__dirname, 'views'));
 /* fin configuracion handlebars */
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(process.cwd(), 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(
   session({

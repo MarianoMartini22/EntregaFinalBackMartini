@@ -1,10 +1,12 @@
 import fs from 'fs';
+import __dirname from './utils/utils.js';
+import path from 'path';
 
 let lastCartId = 0;
 
 function readLastCartId() {
     try {
-      const data = fs.readFileSync('./data/lastCartId.json', 'utf8');
+      const data = fs.readFileSync(path.join(__dirname, './data/lastCartId.json'), 'utf8');
       if (!data) return 0;
       return JSON.parse(data).lastCartId;
     } catch (error) {

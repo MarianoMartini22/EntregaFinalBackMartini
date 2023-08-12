@@ -10,6 +10,7 @@ function registro(event) {
         password: event.target.password.value,
         password2: event.target.password2.value,
     }
+    console.log('entra', user);
     if (user.password.length < 4) {
         alert('La contraseña debe contener al menos 4 caracteres');
         return;
