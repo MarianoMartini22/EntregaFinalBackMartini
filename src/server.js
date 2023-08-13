@@ -67,13 +67,10 @@ socketServer.on('connect', (socket) => {
   });
 
   socket.on('registrarUsuario', async (user) => {
-    const savedUser = await userManager.saveUser(user);
     socketServer.emit('registrarUsuario', savedUser);
   });
 
   socket.on('loginUsuario', async (user) => {
-    const loginUser = await userManager.loginUser(user);
-    socketServer.user = loginUser;
     socketServer.emit('loginUsuario', loginUser);
   });
 

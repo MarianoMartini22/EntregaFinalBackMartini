@@ -71,6 +71,47 @@ viewsRoute.get('/login', async (req, res) => {
   }
 });
 
+viewsRoute.post('/login', (req, res, next) => {
+  passport.authenticate('login', (err, user, info) => {
+    if (err) {
+      return next(err);
+    }
+    setTimeout(() => {
+      req.socketServer.sockets.emit('loginUsuario', user);
+    }, 1);
+    if (!user.ok) {
+      return res.redirect('/login');
+    }
+    req.socketServer.user = user;
+    req.login(user, (err) => {
+      if (err) {
+        return next(err);
+      }
+      return res.redirect('/productos');
+    });
+  })(req, res, next);
+});
+
+viewsRoute.post('/register', (req, res, next) => {
+  passport.authenticate('register', (err, user, info) => {
+    setTimeout(() => {
+      req.socketServer.sockets.emit('registrarUsuario', user);
+    }, 1);
+    if (err) {
+      return next(err);
+    }
+    if (!user.ok) {
+      return res.redirect('/register');
+    }
+    req.login(user, (err) => {
+      if (err) {
+        return next(err);
+      }
+      return res.redirect('/login');
+    });
+  })(req, res, next);
+});
+
 viewsRoute.get(
   "/login-github",
   passport.authenticate("auth0", {

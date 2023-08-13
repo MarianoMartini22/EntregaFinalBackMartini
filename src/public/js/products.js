@@ -29,7 +29,7 @@ function handleLogOut() {
 }
 
 function updateUser(user) {
-    localStorage.setItem('user', user);
+    if (user) localStorage.setItem('user', user);
 }
 
 if (localStorage.getItem('user')) document.getElementById('usuario').innerText = 'Bienvenido ' + localStorage.getItem('user') + '!';

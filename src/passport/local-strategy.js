@@ -14,25 +14,37 @@ const strategyOptions = {
 /* ----------------------------- lógica registro ---------------------------- */
 const register = async (req, email, password, done) => {
     try {
-        // const { first_name, last_name,... } = req.body
-        /* const user = await userDao.getByEmail(email);
-        if (user) return done(null, false); */
-        const newUser = await userDao.saveUser(req.body);
+        const { nombre, apellido, email, password, password2 } = req.body;
+        let newUser = {};
+        if (password.length < 4) {
+            newUser = {ok: false, error: 'La contraseña debe contener al menos 4 caracteres'};
+            return done(null, newUser);
+        }
+        if (password !== password2) {
+            newUser = {ok: false, error: 'Las contraseñas no coinciden'};
+            return done(null, newUser);
+        }
+        newUser = await userDao.saveUser({
+            nombre,
+            apellido,
+            email,
+            password
+        });
         return done(null, newUser);
     } catch (error) {
         console.log(error);
+        return done(error);
     }
 };
+
 
 
 /* ------------------------------ lógica login ------------------------------ */
 const login = async (req, email, password, done) => {
     try {
         const user = { email, password };
-        console.log('USER', user);
         const userLogin = await userDao.loginUser(user);
-        console.log('LOGIN', userLogin);
-        if (!userLogin) return done(null, false, { message: 'User not found' });
+        if (!userLogin.ok) return done(null, userLogin);
         return done(null, userLogin);
     } catch (error) {
         console.log(error);
