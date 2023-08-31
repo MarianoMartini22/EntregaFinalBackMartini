@@ -1,8 +1,8 @@
 
 
-import { productsModel } from '../mongodb/models/productos.model.js';
+import { productsModel } from '../../dao/mongoDB/models/productos.model.js';
 
-class ProductManager {
+class ProductController {
 
     async addProduct(product) {
         try {
@@ -95,4 +95,4 @@ class ProductManager {
 
 }
 
-export default ProductManager;
+export default ProductController;

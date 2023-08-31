@@ -1,9 +1,9 @@
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
-import UserManager from '../dao/mongoDB/UserManager.js';
+import UserController from '../controllers/mongoDB/controllers.user.js';
 import Auth0Strategy from 'passport-auth0';
 
-const userDao = new UserManager();
+const userDao = new UserController();
 
 const strategyOptions = {
     usernameField: 'email',

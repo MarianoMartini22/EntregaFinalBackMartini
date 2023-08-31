@@ -1,6 +1,6 @@
 
 
-import { messagesModel } from '../mongodb/models/messages.model.js';
+import { messagesModel } from '../../dao/mongoDB/models/messages.model.js';
 
 function getRandomColor() {
     const letters = '0123456789ABCDEF';
@@ -11,7 +11,7 @@ function getRandomColor() {
     return color;
 }
 
-class ChatManager {
+class ChatController {
     async saveMessage({ user, message }) {
         const existingMessage = await messagesModel.findOne({ user }).lean();
       
@@ -35,4 +35,4 @@ class ChatManager {
 };
 
 
-export default ChatManager;
+export default ChatController;

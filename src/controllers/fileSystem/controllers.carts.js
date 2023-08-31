@@ -2,15 +2,15 @@ import fs from 'fs';
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { generateNewCartId } from '../../helpers.js';
-import ProductManager from '../fileSystem/ProductManager.js';
+import ProductController from './controllers.products.js';
 const __filename = fileURLToPath( import.meta.url );
 const __dirname = dirname( __filename );
 
 const CART_FILE_PATH = path.resolve( __dirname, '../../data/carrito.json' );
 
-const productManager = new ProductManager();
+const productManager = new ProductController;
 
-class CartManager {
+class CartController {
   constructor() {
     this.path = CART_FILE_PATH;
     this.carts = [];
@@ -106,4 +106,4 @@ class CartManager {
   }
 }
 
-export default CartManager;
+export default CartController;

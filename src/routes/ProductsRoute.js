@@ -1,6 +1,6 @@
 import express from 'express';
-import ProductManagerMongo from '../dao/mongoDB/ProductManager.js';
-import ProductManagerFS from '../dao/fileSystem/ProductManager.js';
+import ProductManagerMongo from '../controllers/mongoDB/controllers.products.js';
+import ProductManagerFS from '../controllers/fileSystem/controllers.products.js';
 import dotenv from 'dotenv';
 import isAuth from '../middlewares/isAuth.js';
 

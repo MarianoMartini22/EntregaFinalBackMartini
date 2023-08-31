@@ -13,16 +13,16 @@ import viewsRouter from './routes/ViewsRouter.js';
 import dbConnection from './utils/db.js';
 import __dirname from './utils/utils.js';
 
-import ChatManager from './dao/mongoDB/ChatManager.js';
-import UserManager from './dao/mongoDB/UserManager.js';
+import ChatController from './controllers/mongoDB/controllers.chats.js';
+import UserController from './controllers/mongoDB/controllers.user.js';
 import session from 'express-session';
 import './passport/local-strategy.js';
 import passport from 'passport';
 
 dotenv.config();
 
-const chatManager = new ChatManager();
-const userManager = new UserManager();
+const chatManager = new ChatController();
+const userManager = new UserController();
 const app = express();
 const PORT = process.env.PORT;
 const httpServer = createServer(app);

@@ -1,8 +1,8 @@
 import express from 'express';
-import ProductManagerFS from '../dao/fileSystem/ProductManager.js';
-import ProductManagerMongo from '../dao/mongoDB/ProductManager.js';
-import CartManagerFS from '../dao/fileSystem/CartManager.js';
-import CartManagerMongo from '../dao/mongoDB/CartManager.js';
+import ProductManagerFS from '../controllers/fileSystem/controllers.products.js';
+import ProductManagerMongo from '../controllers/mongoDB/controllers.products.js';
+import CartManagerFS from '../controllers/fileSystem/controllers.carts.js';
+import CartManagerMongo from '../controllers/mongoDB/controllers.carts.js';
 import isAuth from '../middlewares/isAuth.js';
 import passport from 'passport';
 

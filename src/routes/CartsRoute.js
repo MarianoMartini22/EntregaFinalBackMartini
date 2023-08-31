@@ -1,12 +1,12 @@
 import express from 'express';
-import CartManagerFS from '../dao/fileSystem/CartManager.js';
-import cartManagerMongo from '../dao/mongoDB/CartManager.js';
+import CartManagerFS from '../controllers/fileSystem/controllers.carts.js';
+import cartManagerMongo from '../controllers/mongoDB/controllers.carts.js';
 import dotenv from 'dotenv';
 import isAuth from '../middlewares/isAuth.js';
 
 dotenv.config();
 
-// import ProductManager from '../dao/fileSystem/ProductManager.js';
+// import controllers.products from '../dao/fileSystem/controllers.products.js';
 import { initializeLastCartId } from '../helpers.js';
 
 const cartRoute = express.Router();
@@ -31,7 +31,7 @@ switch (process.env.DB) {
     cartManager = new cartManagerMongo();
     break;
 }
-// const productManager = new ProductManager();
+// const productManager = new controllers.products();
 
 cartRoute.use(isAuth);
 

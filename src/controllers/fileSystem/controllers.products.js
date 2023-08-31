@@ -7,7 +7,7 @@ const __dirname = dirname( __filename );
 
 const PRODUCTS_FILE_PATH = path.resolve( __dirname, '../../data/productos.json' );
 
-class ProductManager {
+class ProductController {
   constructor() {
     this.path = PRODUCTS_FILE_PATH;
     this.products = [];
@@ -115,4 +115,4 @@ class ProductManager {
   }
 }
 
-export default ProductManager;
+export default ProductController;
