@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { generateNewCartId } from '../../helpers.js';
+import { generateNewCartId } from '../../utils/helpers.js';
 import ProductController from './controllers.products.js';
 const __filename = fileURLToPath( import.meta.url );
 const __dirname = dirname( __filename );

@@ -7,7 +7,7 @@ import isAuth from '../middlewares/isAuth.js';
 dotenv.config();
 
 // import controllers.products from '../dao/fileSystem/controllers.products.js';
-import { initializeLastCartId } from '../helpers.js';
+import { initializeLastCartId } from '../utils/helpers.js';
 
 const cartRoute = express.Router();
 /*

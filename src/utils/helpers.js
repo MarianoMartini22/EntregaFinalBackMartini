@@ -1,5 +1,5 @@
 import fs from 'fs';
-import __dirname from './utils/utils.js';
+import __dirname from './utils.js';
 import path from 'path';
 
 let lastCartId = 0;
