@@ -1,6 +1,6 @@
 
 
-import { productsModel } from '../../dao/mongoDB/models/productos.model.js';
+import { productsModel } from '../../dao/models/productos.model.js';
 
 class ProductController {
 

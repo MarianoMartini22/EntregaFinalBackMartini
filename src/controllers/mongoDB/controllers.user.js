@@ -1,5 +1,5 @@
 
-import { userModel } from '../../dao/mongoDB/models/usuario.model.js';
+import { userModel } from '../../dao/models/usuario.model.js';
 import bcrypt from 'bcrypt';
 
 class UserController {

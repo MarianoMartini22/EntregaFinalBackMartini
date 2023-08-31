@@ -1,6 +1,6 @@
 
 
-import { messagesModel } from '../../dao/mongoDB/models/messages.model.js';
+import { messagesModel } from '../../dao/models/messages.model.js';
 
 function getRandomColor() {
     const letters = '0123456789ABCDEF';

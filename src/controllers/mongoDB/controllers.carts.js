@@ -1,6 +1,6 @@
 
 
-import { cartsModel } from '../../dao/mongoDB/models/carrito.model.js';
+import { cartsModel } from '../../dao/models/carrito.model.js';
 import ProductsManager from './controllers.products.js';
 
 
