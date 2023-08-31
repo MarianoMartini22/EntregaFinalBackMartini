@@ -7,9 +7,9 @@ import { Server } from 'socket.io';
 import bodyParser from 'body-parser';
 import Handlebars from 'handlebars';
 
-import productsRoute from './routes/ProductsRoute.js';
-import cartRoute from './routes/CartsRoute.js';
-import viewsRouter from './routes/ViewsRouter.js';
+import productsRoute from './routes/routes.products.js';
+import cartRoute from './routes/routes.carts.js';
+import viewsRouter from './routes/routes.views.js';
 import dbConnection from './utils/db.js';
 import __dirname from './utils/utils.js';
 
@@ -22,7 +22,6 @@ import passport from 'passport';
 dotenv.config();
 
 const chatManager = new ChatController();
-const userManager = new UserController();
 const app = express();
 const PORT = process.env.PORT;
 const httpServer = createServer(app);
@@ -41,7 +40,7 @@ app.engine('handlebars', engine({
 }));
 
 app.set('view engine', 'handlebars');
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(__dirname, 'public/views'));
 /* fin configuracion handlebars */
 app.use(bodyParser.json());
 app.use(express.json());
