@@ -2,6 +2,7 @@ import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import UserController from '../controllers/mongoDB/controllers.user.js';
 import Auth0Strategy from 'passport-auth0';
+import config from '../utils/config.js';
 
 const userDao = new UserController();
 
@@ -50,13 +51,12 @@ const login = async (req, email, password, done) => {
         console.log(error);
     }
 };
-
 const strategy = new Auth0Strategy(
     {
-      domain: process.env.AUTH0_DOMAIN,
-      clientID: process.env.AUTH0_CLIENT_ID,
-      clientSecret: process.env.AUTH0_CLIENT_SECRET,
-      callbackURL: process.env.AUTH0_CALLBACK_URL
+      domain: config.AUTH0_DOMAIN,
+      clientID: config.AUTH0_CLIENT_ID,
+      clientSecret: config.AUTH0_CLIENT_SECRET,
+      callbackURL: config.AUTH0_CALLBACK_URL
     },
     async function(accessToken, refreshToken, extraParams, profile, done) {
       const user = {

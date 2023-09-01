@@ -3,12 +3,13 @@ import ProductManagerMongo from '../controllers/mongoDB/controllers.products.js'
 import ProductManagerFS from '../controllers/fileSystem/controllers.products.js';
 import dotenv from 'dotenv';
 import isAuth from '../middlewares/isAuth.js';
+import config from '../utils/config.js';
 
 dotenv.config();
 
 let productManager = null;
 
-switch (process.env.DB) {
+switch (config.DB) {
   case 'fs':
     productManager = new ProductManagerFS();
     break;
@@ -64,7 +65,7 @@ productsRoute.get('/', async (req, res) => {
     } else {
       nextLink = null;
     }
-    if (process.env.DB === 'fs') return res.json(products);
+    if (config.DB === 'fs') return res.json(products);
     res.status(200).json({
       status: 'success',
       payload: products.docs,

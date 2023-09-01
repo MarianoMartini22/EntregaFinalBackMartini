@@ -18,12 +18,12 @@ import UserController from './controllers/mongoDB/controllers.user.js';
 import session from 'express-session';
 import './passport/local-strategy.js';
 import passport from 'passport';
+import config from './utils/config.js';
 
 dotenv.config();
 
 const chatManager = new ChatController();
 const app = express();
-const PORT = process.env.PORT;
 const httpServer = createServer(app);
 const socketServer = new Server(httpServer);
 
@@ -112,7 +112,7 @@ app.use(viewsRouter);
 app.use('/api/products', productsRoute);
 app.use('/api/carts', cartRoute);
 
-httpServer.listen(PORT, () => {
-  console.log(`Server corriendo en puerto ${PORT}\nConexión vía ${process.env.DB}`);
+httpServer.listen(config.PORT, () => {
+  console.log(`Server corriendo en puerto ${config.PORT}\nConexión vía ${config.DB}`);
   dbConnection();
 });

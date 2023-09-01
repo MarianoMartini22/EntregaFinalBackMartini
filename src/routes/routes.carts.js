@@ -8,6 +8,7 @@ dotenv.config();
 
 // import controllers.products from '../dao/fileSystem/controllers.products.js';
 import { initializeLastCartId } from '../utils/helpers.js';
+import config from '../utils/config.js';
 
 const cartRoute = express.Router();
 /*
@@ -20,7 +21,7 @@ Por defecto será mongoDB
 **********************
 */
 let cartManager = null;
-switch (process.env.DB) {
+switch (config.DB) {
   case 'fs':
     cartManager = new CartManagerFS();
     break;

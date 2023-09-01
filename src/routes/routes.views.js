@@ -5,11 +5,12 @@ import CartManagerFS from '../controllers/fileSystem/controllers.carts.js';
 import CartManagerMongo from '../controllers/mongoDB/controllers.carts.js';
 import isAuth from '../middlewares/isAuth.js';
 import passport from 'passport';
+import config from '../utils/config.js';
 
 
 let productManager = null;
 
-switch (process.env.DB) {
+switch (config.DB) {
   case 'fs':
     productManager = new ProductManagerFS();
     break;
@@ -22,7 +23,7 @@ switch (process.env.DB) {
 }
 let cartManager = null;
 
-switch (process.env.DB) {
+switch (config.DB) {
   case 'fs':
     cartManager = new CartManagerFS();
     break;
