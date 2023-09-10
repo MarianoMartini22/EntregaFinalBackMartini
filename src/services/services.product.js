@@ -1,7 +1,7 @@
-import { productsModel } from '../../dao/models/productos.model.js';
+import { productsModel } from '../dao/models/productos.model.js';
 
-class ProductController {
-    async addProduct(product) {
+class ProductServices {
+    async createProduct(product) {
         try {
             if (product.code && (await this.getProductByCode(product.code))) {
                 throw new Error('Ya existe un producto con el mismo código');
@@ -13,30 +13,28 @@ class ProductController {
         }
     }
 
-    async getProducts(
-        limit = 10,
-        page = 1,
-        sort = 'asc',
-        filter = null,
-        filterValue = null
-    ) {
-        try {
-            const whereOptions = {};
-            if (filter && filterValue) {
-                whereOptions[filter] = { $regex: filterValue, $options: 'i' };
-            }
+    async getProducts(limit = 10, page = 1, sort = 'asc', filter = null, filterValue = null) {
+        if (!limit) limit = 10;
+        let whereOptions = {};
 
-            const sortOrder = sort === 'desc' ? -1 : 1;
-            const result = await productsModel.paginate(whereOptions, {
-                limit,
-                page,
-                sort: { price: sortOrder },
-            });
-
-            return result;
-        } catch (error) {
-            throw error;
+        if (filter && filterValue) {
+            whereOptions = { [filter]: { $regex: filterValue, $options: 'i' } };
         }
+
+        let sortOrder;
+        if (sort === 'desc') {
+            sortOrder = -1;
+        } else {
+            sortOrder = 1;
+        }
+
+        const result = await productsModel.paginate(whereOptions, {
+            limit: limit,
+            page: page,
+            sort: { price: sortOrder },
+        });
+
+        return result;
     }
 
     async getProductById(id) {
@@ -51,23 +49,15 @@ class ProductController {
     async getProductByCode(code) {
         try {
             const result = await productsModel.findOne({ code });
-            if (result) {
-                return result;
-            } else {
-                return null;
-            }
+            return result;
         } catch (e) {
             return false;
         }
     }
 
     async getProductsByCategory(category) {
-        try {
-            const result = await productsModel.find(category);
-            return result;
-        } catch (error) {
-            throw error;
-        }
+        const result = await productsModel.find(category);
+        return result;
     }
 
     async updateProduct(id, productData) {
@@ -93,4 +83,4 @@ class ProductController {
     }
 }
 
-export default ProductController;
+export default ProductServices;

@@ -1,207 +1,139 @@
-
-
-import { cartsModel } from '../../dao/models/carrito.model.js';
 import ProductsManager from './controllers.products.js';
+import CartRepository from '../../services/services.cart.js';
 
+class CartProductDTO {
+    constructor(product, quantity) {
+        this.product = product;
+        this.quantity = quantity;
+    }
+}
+
+class CartDTO {
+    constructor(id, products) {
+        this.id = id;
+        this.products = products;
+    }
+}
 
 class CartsManager {
+    constructor() {
+        this.productsManager = new ProductsManager();
+        this.cartRepository = new CartRepository();
+    }
 
-    productsManager = new ProductsManager();
-
-    async createCart () {
-
-        const result = await cartsModel.create( { products: [] } );
+    async createCart() {
+        const cartData = { products: [] };
+        const result = await this.cartRepository.create(cartData);
         return result;
+    }
 
-    };
+    async getCarts() {
+        const carts = await this.cartRepository.findAll();
+        return carts.map((cart) => new CartDTO(cart._id, cart.products.map((product) => new CartProductDTO(product.product, product.quantity))));
+    }
 
-    async getCarts () {
-
-        const result = await cartsModel.find().lean();
-        return result;
-
-    };
-
-    async getCartById ( id ) {
-        const result = await cartsModel.findOne( { _id: id } ).populate( 'products.product' ).catch(() => {
-            throw new Error('No hay un carrito con ese ID');
-        });
-        return result;
-    };
+    async getCartById(id) {
+        const cart = await this.cartRepository.findById(id);
+        return cart;
+    }
 
     async addProductToCart(cartId, productId) {
         try {
             const product = await this.productsManager.getProductById(productId);
             const cart = await this.getCartById(cartId);
-            const existingProduct = cart.products.find(
-            (item) => item.product._id.toString() === product._id.toString()
+
+            const existingProductIndex = cart.products.findIndex(
+                (item) => item.product._id.toString() === product._id.toString()
             );
-            if (existingProduct) {
+
+            if (existingProductIndex !== -1) {
                 // Si el producto ya está en el carrito, se incrementa la cantidad
-                existingProduct.quantity += 1;
+                cart.products[existingProductIndex].quantity += 1;
             } else {
                 // Si el producto no está en el carrito, se agrega con una cantidad de 1
-                cart.products.push({ product, quantity: 1 });
+                cart.products.push(new CartProductDTO(product, 1));
             }
-            await cart.save();
+
+            await this.cartRepository.save(cart);
         } catch (e) {
             throw new Error(e.message);
         }
-    };
-      
-      
+    }
 
-    async deleteProductFromCart ( cartId, productId ) {
-        // Maybe use syntax like "this.productsManager.getProductById( productId );"
-        const cart = await this.getCartById( cartId );
-        cart.products.pull( productId );
-        await cart.save();
+    async deleteProductFromCart(cartId, productId) {
+        const cart = await this.getCartById(cartId);
+        cart.products = cart.products.filter(
+            (item) => item.product._id.toString() !== productId
+        );
+        await this.cartRepository.save(cart);
+    }
 
-        return;
-    };
-
-    async deleteAllProductsFromCart ( cartId ) {
-        // Maybe use syntax like "this.productsManager.getProductById( productId );"
-        const cart = await this.getCartById( cartId );
+    async deleteAllProductsFromCart(cartId) {
+        const cart = await this.getCartById(cartId);
         cart.products = [];
-        await cart.save();
-
-        return;
-    };
-
-    async updateCart ( cartId, products ) {
-
-        try {
-
-            // Fetch the cart by ID
-            const cart = await this.getCartById( cartId );
-
-            // Check if the cart exists
-            if ( !cart ) {
-                throw new Error( 'Cart not found' );
-            }
-
-            // Update the products array
-            cart.products = products;
-
-
-            // Save the cart back to the database
-            await cart.save();
-
-            // Return the updated cart
-            return cart;
-
-        } catch ( error ) {
-            console.error( error );
-            throw new Error( 'Failed to update cart' );
-        }
+        await this.cartRepository.save(cart);
     }
-    async removeProductFromCart(cartId, productId) {
-        try {
-            const cart = await this.getCartById(cartId);
-    
-            if (!cart) {
-                throw new Error('Cart not found');
-            }
-    
-            cart.products = cart.products.filter((productF) => productF.product && productF.product._id !== productId);
-    
-            await cart.save();
-    
-            return { message: 'Producto borrado del carrito correctamente.', cart };
-        } catch (error) {
-            console.error(error);
-            throw new Error('Failed to delete cart');
-        }
-    }
+
     async updateCart(cartId, products) {
         try {
             const cart = await this.getCartById(cartId);
-            if (!products) products = [];
-            if (!cart) {
-                throw new Error('Cart not found');
-            }
-            const notExists = [];
-            products.map((product) => {
-                const element = this.productsManager.getProductById( product._id );
-                if (!element) {
-                    notExists.push(element);
-                    products.filter((prod) => prod && prod._id !== element._id);
-                }
-            });
-            if (notExists.length > 0) {
-                throw new Error('Products not found: ', notExists);
-            }
-            const unificarProductos = products.reduce((result, product) => {
-                const { product: productId, quantity } = product;
-                if (!result[productId]) {
-                  result[productId] = quantity;
-                } else {
-                  result[productId] += quantity;
-                }
-                return result;
-              }, {});
-              
-              const finalProducts = Object.keys(unificarProductos).map((productId) => ({
-                product: productId,
-                quantity: unificarProductos[productId]
-              }));
-            cart.products = finalProducts;
-    
-            await cart.save();
-    
-            return { message: 'Productos actualizados del carrito correctamente.', cart };
-        } catch (error) {
-            console.error(error);
-            throw new Error('Failed to update cart');
-        }
-    }
-    async updateCartByQuantity(cartId, productId, quantity) {
-        try {
-            const cart = await this.getCartById(cartId);
-            const product = await this.productsManager.getProductById( productId );
-            if (!cart) {
-                throw new Error('Cart not found');
-            }
-            if (!product) {
-                throw new Error('Product not found');
-            }
-            const productIndex = cart.products.findIndex((prod) => prod.product._id.toString() === product._id.toString());
-            if (productIndex === -1) {
-                throw new Error('Product not found in the cart');
-            }
-    
-            cart.products[productIndex].quantity = quantity;
-    
-            await cart.save();
-            return { message: 'Cantidad actualizada del producto (' + product.code + '): ' + quantity };
-        } catch (error) {
-            console.error(error);
-            throw new Error('Failed to update cart');
-        }
-    }
-    async removeAllProductsFromCart(cartId) {
-        try {
-            const cart = await this.getCartById(cartId);
-    
-            if (!cart) {
-                throw new Error('Cart not found');
-            }
-    
-            cart.products = [];
-    
-            await cart.save();
-    
-            return { message: 'Productos borrados del carrito correctamente.', cart };
-        } catch (error) {
-            console.error(error);
-            throw new Error('Failed to delete cart');
-        }
-    }
-    
-    
-    
-};
 
+            if (!cart) {
+                throw new Error('Cart not found');
+            }
+
+            const cartProducts = products.map((product) =>
+                new CartProductDTO(product.product, product.quantity)
+            );
+
+            cart.products = cartProducts;
+            await this.cartRepository.save(cart);
+            return new CartDTO(cart._id, cart.products.map((product) => new CartProductDTO(product.product, product.quantity)));
+        } catch (error) {
+            console.error(error);
+            throw new Error('Failed to update cart');
+        }
+    }
+
+    async removeProductFromCart(cartId, productId) {
+        const cart = await this.getCartById(cartId);
+        cart.products = cart.products.filter(
+            (productF) =>
+                productF.product && productF.product._id.toString() !== productId
+        );
+        await this.cartRepository.save(cart);
+    }
+
+    async updateCartByQuantity(cartId, productId, quantity) {
+        const cart = await this.getCartById(cartId);
+        const product = await this.productsManager.getProductById(productId);
+
+        if (!cart) {
+            throw new Error('Cart not found');
+        }
+
+        if (!product) {
+            throw new Error('Product not found');
+        }
+
+        const productIndex = cart.products.findIndex(
+            (prod) => prod.product._id.toString() === product._id.toString()
+        );
+
+        if (productIndex === -1) {
+            throw new Error('Product not found in the cart');
+        }
+
+        cart.products[productIndex].quantity = quantity;
+
+        await this.cartRepository.save(cart);
+    }
+
+    async removeAllProductsFromCart(cartId) {
+        const cart = await this.getCartById(cartId);
+        cart.products = [];
+        await this.cartRepository.save(cart);
+    }
+}
 
 export default CartsManager;
