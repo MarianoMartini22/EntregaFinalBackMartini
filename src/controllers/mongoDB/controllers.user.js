@@ -27,7 +27,8 @@ class UserController {
 
     async getUserById(id) {
         const result = await this.userService.getUserById(id);
-        return new UserDTO(result.nombre, result.apellido, result.email, result.rol, result.github);
+        if (!result) return null;
+        return new UserDTO(result.nombre, result.apellido, result.email, result.rol);
     }
 }
 

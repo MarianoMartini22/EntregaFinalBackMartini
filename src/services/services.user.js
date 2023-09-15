@@ -54,7 +54,8 @@ class UserService {
     }
 
     async getUserById(id) {
-        const existingUser = await userModel.findOne({ id }).lean();
+        if (!id) return null;
+        const existingUser = await userModel.findOne({ _id: id }).lean();
         return existingUser;
     }
 }

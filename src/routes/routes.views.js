@@ -3,12 +3,14 @@ import ProductManagerFS from '../controllers/fileSystem/controllers.products.js'
 import ProductManagerMongo from '../controllers/mongoDB/controllers.products.js';
 import CartManagerFS from '../controllers/fileSystem/controllers.carts.js';
 import CartManagerMongo from '../controllers/mongoDB/controllers.carts.js';
+import UserManagerMongo from '../controllers/mongoDB/controllers.user.js';
 import isAuth from '../middlewares/isAuth.js';
 import passport from 'passport';
 import config from '../utils/config.js';
 
 
 let productManager = null;
+let userManager = new UserManagerMongo();
 
 switch (config.DB) {
   case 'fs':
@@ -228,6 +230,15 @@ viewsRoute.get('/carts/:cid', async (req, res) => {
 viewsRoute.get('/chat', async (req, res) => {
   try {
     res.render('chat');
+  } catch (error) {
+    res.status(500).json({ error: 'Ocurrió un error al obtener los chats.', detailError: error.message });
+  }
+});
+viewsRoute.get('/current', async (req, res) => {
+  try {
+    const canLogin = req.socketServer.user;
+    const user = await userManager.getUserById(canLogin.user._id);
+    res.render('current', { user });
   } catch (error) {
     res.status(500).json({ error: 'Ocurrió un error al obtener los chats.', detailError: error.message });
   }
