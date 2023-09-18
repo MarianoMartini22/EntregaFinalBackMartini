@@ -34,7 +34,7 @@ switch (config.DB) {
 }
 // const productManager = new controllers.products();
 
-cartRoute.use(isAuth);
+// cartRoute.use(isAuth);
 
 cartRoute.get('/:cid', async (req, res) => {
   try {
@@ -52,7 +52,9 @@ initializeLastCartId();
 
 cartRoute.post('/', (req, res) => {
   try {
-    cartManager.createCart();
+    const user = req.socketServer.user;
+    if (!user) res.status(500).json({ detailError: '', error: 'Error al agregar carrito, verifique su usuario' });
+    cartManager.createCart(user.user._id);
     res.json({ message: 'Carrito agragado con éxito.' });
   } catch (error) {
     res.status(500).json({ detailError: error.message, error: 'Error al agregar carrito' });

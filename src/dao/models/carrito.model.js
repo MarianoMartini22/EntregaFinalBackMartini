@@ -19,6 +19,10 @@ const CartsSchema = new mongoose.Schema( {
             },
         ],
     },
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "userModel",
+    }
 } );
 
 export const cartsModel = mongoose.model( collection, CartsSchema );

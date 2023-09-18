@@ -21,8 +21,8 @@ class CartsManager {
         this.cartRepository = new CartRepository();
     }
 
-    async createCart() {
-        const cartData = { products: [] };
+    async createCart(user) {
+        const cartData = { products: [], user };
         const result = await this.cartRepository.create(cartData);
         return result;
     }
