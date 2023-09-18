@@ -16,9 +16,11 @@
       <input type="email" id="user" class="form-control" placeholder="Email">
       <input type="text" id="message" class="form-control" placeholder="Escribe un mensaje...">
       <div class="input-group-append">
-        <button onclick="sendMessage()" class="btn btn-primary">Enviar</button>
+        <button onclick="sendMessage('{{user}}')" class="btn btn-primary">Enviar</button>
       </div>
     </div>
+    <p id="nomessage"></p>
+
     <div id="alert-container" class="mt-3"></div>
   </div>
 

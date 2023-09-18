@@ -7,6 +7,7 @@ import UserManagerMongo from '../controllers/mongoDB/controllers.user.js';
 import isAuth from '../middlewares/isAuth.js';
 import passport from 'passport';
 import config from '../utils/config.js';
+import currentMiddleware from '../middlewares/current.js';
 
 
 let productManager = null;
@@ -229,11 +230,13 @@ viewsRoute.get('/carts/:cid', async (req, res) => {
 
 viewsRoute.get('/chat', async (req, res) => {
   try {
-    res.render('chat');
+    const user = req.socketServer.user;
+    res.render('chat', { user: user.user.email });
   } catch (error) {
     res.status(500).json({ error: 'Ocurrió un error al obtener los chats.', detailError: error.message });
   }
 });
+
 viewsRoute.get('/current', async (req, res) => {
   try {
     const canLogin = req.socketServer.user;

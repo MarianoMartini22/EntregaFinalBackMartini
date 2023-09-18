@@ -1,5 +1,6 @@
 const socket = io();
 let userColorsMap = {};
+
 function showAlert(message, alertType) {
   const alertDiv = document.createElement('div');
   alertDiv.classList.add('alert', `alert-${alertType}`);
@@ -18,7 +19,12 @@ function isValidEmail(email) {
   return emailRegex.test(email);
 }
 
-function sendMessage() {
+function sendMessage(userSocket) {
+  if (userSocket !== document.getElementById('user').value) {
+    document.getElementById('nomessage').innerText = 'No puedes enviar mensajes, sólo puedes usar tu email';
+    return;
+  }
+  document.getElementById('nomessage').innerText = '';
   const user = document.getElementById('user').value;
   const message = document.getElementById('message').value;
   if (!user) return showAlert('El email es obligatorio', 'danger');
