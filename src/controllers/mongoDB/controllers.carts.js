@@ -37,11 +37,13 @@ class CartsManager {
         return cart;
     }
 
-    async addProductToCart(cartId, productId) {
+    async addProductToCart(cartId, productId, user) {
         try {
             const product = await this.productsManager.getProductById(productId);
             const cart = await this.getCartById(cartId);
-
+            if (!cart.user && cart.user?._id !== user) {
+                throw new Error('Sólo el usuario del carrito puede agregar productos');
+            }
             const existingProductIndex = cart.products.findIndex(
                 (item) => item.product._id.toString() === product._id.toString()
             );

@@ -65,8 +65,8 @@ cartRoute.post('/:cid/product/:pid', async (req, res) => {
   try {
     const cId = req.params.cid;
     const pId = req.params.pid;
-    
-    const cart = await cartManager.addProductToCart(cId, pId);
+    const user = req.socketServer.user;
+    const cart = await cartManager.addProductToCart(cId, pId, user.user._id);
 
     res.json({ message: 'Producto agregado al carrito correctamente.', cart });
 
