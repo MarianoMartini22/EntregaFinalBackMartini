@@ -134,13 +134,13 @@ viewsRoute.get("/callback", (req, res, next) => {
     if (!user) {
       return res.redirect("/login");
     }
+    req.socketServer.user = user;
     req.logIn(user, (err) => {
-      req.socketServer.user = user;
       if (err) {
         return next(err);
       }
       delete req.session.returnTo;
-      res.redirect(`/productos?user=${user.nickname}`);
+      res.redirect(`/productos`);
     });
   })(req, res, next);
 });

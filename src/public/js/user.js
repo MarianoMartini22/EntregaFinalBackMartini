@@ -36,3 +36,5 @@ socket.on('loginUsuario', ingresarUsuario);
 socket.on('registrarUsuario', registrarUsuario);
 
 socket.on('errorUsuario', errorUsuario);
+
+localStorage.removeItem('user');

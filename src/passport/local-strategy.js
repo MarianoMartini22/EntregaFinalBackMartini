@@ -60,13 +60,13 @@ const strategy = new Auth0Strategy(
     },
     async function(accessToken, refreshToken, extraParams, profile, done) {
       const user = {
-        nombre: profile._json.name.split(' ')[0],
-        apellido: profile._json.name.split(' ')[1],
+        nombre: profile._json.nickname,
+        apellido: '',
         email: profile._json.nickname,
         password: '',
         github: true,
       }
-      userDao.saveUser(user);
+      await userDao.saveUser(user);
       return done(null, profile);
     }
 );

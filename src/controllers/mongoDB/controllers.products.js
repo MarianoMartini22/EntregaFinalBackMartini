@@ -1,4 +1,5 @@
 import { productsModel } from '../../dao/models/productos.model.js';
+import { generateProduct } from '../../utils/products.utils.js';
 
 class ProductController {
     async addProduct(product) {
@@ -90,6 +91,14 @@ class ProductController {
         } catch (e) {
             throw new Error('No se encontró un producto con ese ID');
         }
+    }
+    createMockProduct(cant = 100) {
+        const products = [];
+        for (let i = 0; i < cant; i++) {
+            const product = generateProduct();
+            products.push(product);
+        }
+        return products;
     }
 }
 

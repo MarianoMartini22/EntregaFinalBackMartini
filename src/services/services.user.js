@@ -11,22 +11,26 @@ class UserService {
 
             let newUser = {};
             if (email === 'adminCoder@coder.com' && password === 'adminCod3r123') newUser = { rol: 'admin' };
-            const saltRounds = 10;
-            const hashedPassword = await bcrypt.hash(password, saltRounds);
-            (!github) ? newUser = {
-                ...newUser,
-                nombre,
-                apellido,
-                email,
-                password: hashedPassword,
-            } : newUser = {
-                ...newUser,
-                nombre: ' ',
-                apellido: ' ',
-                email,
-                password: ' ',
-                github,
-            };
+            if (!github) {
+                const saltRounds = 10;
+                const hashedPassword = await bcrypt.hash(password, saltRounds);
+                newUser = {
+                    ...newUser,
+                    nombre,
+                    apellido,
+                    email,
+                    password: hashedPassword,
+                };
+            } else {
+                newUser = {
+                    ...newUser,
+                    nombre,
+                    apellido,
+                    email,
+                    password,
+                    github: true,
+                };
+            }
             const result = await userModel.create(newUser);
             return { ok: true, user: result };
         } catch (error) {
