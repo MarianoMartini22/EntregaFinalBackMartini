@@ -9,6 +9,8 @@ dotenv.config();
 // import controllers.products from '../dao/fileSystem/controllers.products.js';
 import { initializeLastCartId } from '../utils/helpers.js';
 import config from '../utils/config.js';
+import { HttpResponse } from '../utils/http.response.js';
+const httpResponse = new HttpResponse();
 
 const cartRoute = express.Router();
 /*
@@ -42,9 +44,9 @@ cartRoute.get('/:cid', async (req, res) => {
     const cart = await cartManager.getCartById(cid);
     const products = cart.products;
 
-    res.json(products);
+    return httpResponse.Ok(res, products);
   } catch (error) {
-    res.status(500).json({ error: 'Error al obtener carrito', detailError: error.message });
+    return httpResponse.NotFound(res, 'No se encontró el carrito');
   }
 });
 
@@ -55,9 +57,9 @@ cartRoute.post('/', (req, res) => {
     const user = req.socketServer.user;
     if (!user) res.status(500).json({ detailError: '', error: 'Error al agregar carrito, verifique su usuario' });
     cartManager.createCart(user.user._id);
-    res.json({ message: 'Carrito agragado con éxito.' });
+    return httpResponse.Ok(res, { message: 'Carrito agragado con éxito.' });
   } catch (error) {
-    res.status(500).json({ detailError: error.message, error: 'Error al agregar carrito' });
+    return httpResponse.ServerError(res, 'Error al agregar carrito');
   }
 });
 
@@ -68,10 +70,10 @@ cartRoute.post('/:cid/product/:pid', async (req, res) => {
     const user = req.socketServer.user;
     const cart = await cartManager.addProductToCart(cId, pId, user.user._id);
 
-    res.json({ message: 'Producto agregado al carrito correctamente.', cart });
+    return httpResponse.Ok(res, { message: 'Producto agregado al carrito correctamente.', cart });
 
   } catch (error) {
-    res.status(500).json({ error: 'Error al agregar producto al carrito', detailError: error.message });
+    return httpResponse.ServerError(res, 'Error al agregar producto al carrito');
   }
 });
 
@@ -80,22 +82,18 @@ cartRoute.delete('/:cid/products/:pid', async (req, res) => {
     const cId = req.params.cid;
     const pId = req.params.pid;
     const cart = await cartManager.removeProductFromCart(cId, pId);
-
-    res.json({ message: 'Producto borrado del carrito correctamente.', cart });
-
+    return httpResponse.Ok(res, { message: 'Producto borrado del carrito correctamente.', cart });
   } catch (error) {
-    res.status(500).json({ error: 'Error al borrar producto del carrito', detailError: error.message });
+    return httpResponse.ServerError(res, 'Error al borrar producto del carrito');
   }
 });
 cartRoute.delete('/:cid', async (req, res) => {
   try {
     const cId = req.params.cid;
     const cart = await cartManager.removeAllProductsFromCart(cId);
-
-    res.json({ message: 'Productos borrados del carrito correctamente.', cart });
-
+    return httpResponse.Ok(res, { message: 'Productos borrados del carrito correctamente.', cart });
   } catch (error) {
-    res.status(500).json({ error: 'Error al borrar productos del carrito', detailError: error.message });
+    return httpResponse.ServerError(res, 'Error al borrar productos del carrito');
   }
 });
 
@@ -104,11 +102,10 @@ cartRoute.put('/:cid', async (req, res) => {
     const cId = req.params.cid;
     const products = req.body.products;
     const cart = await cartManager.updateCart(cId, products);
-
-    res.json({ message: 'Productos actualizados en el carrito correctamente.', cart });
+    return httpResponse.Ok(res, { message: 'Productos actualizados en el carrito correctamente.', cart });
 
   } catch (error) {
-    res.status(500).json({ error: 'Error al actualizar productos del carrito', detailError: error.message });
+    return httpResponse.ServerError(res, 'Error al actualizar productos del carrito');
   }
 });
 
@@ -118,11 +115,10 @@ cartRoute.put('/:cid/products/:pid', async (req, res) => {
     const pId = req.params.pid;
     const quantity = req.body.quantity;
     const cart = await cartManager.updateCartByQuantity(cId, pId, quantity);
-
-    res.json({ message: 'Productos actualizados en el carrito correctamente.', cart });
+    return httpResponse.Ok(res, { message: 'Productos actualizados en el carrito correctamente.', cart });
 
   } catch (error) {
-    res.status(500).json({ error: 'Error al actualizar productos del carrito', detailError: error.message });
+    return httpResponse.ServerError(res, 'Error al actualizar productos del carrito');
   }
 });
 

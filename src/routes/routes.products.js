@@ -5,7 +5,8 @@ import dotenv from 'dotenv';
 import isAuth from '../middlewares/isAuth.js';
 import config from '../utils/config.js';
 import currentMiddleware from '../middlewares/current.js';
-
+import { HttpResponse } from '../utils/http.response.js';
+const httpResponse = new HttpResponse();
 dotenv.config();
 
 let productManager = null;
@@ -74,9 +75,9 @@ productsRoute.get('/', async (req, res) => {
       prevLink,
       nextLink
     }
-    res.status(200).json(finalProducts);
+    return httpResponse.Ok(res, finalProducts);
   } catch (error) {
-    res.status(500).json({ error: 'Ocurrió un error al obtener los productos.', detailError: error.message });
+    return httpResponse.ServerError(res, 'Ocurrió un error al obtener los productos');
   }
 });
 
@@ -86,12 +87,12 @@ productsRoute.get('/:pid', async (req, res) => {
     const pid = req.params.pid;
     const product = await productManager.getProductById(pid);
     if (product) {
-      res.json(product);
+      return httpResponse.Ok(res, product);
     } else {
-      res.status(404).json({ error: 'Producto no encontrado.' });
+      return httpResponse.NotFound(res, 'Producto no encontrado.');
     }
   } catch (error) {
-    res.status(500).json({ error: 'Ocurrió un error al obtener el producto.', detailError: error.message });
+    return httpResponse.ServerError(res, 'Ocurrió un error al obtener el producto.');
   }
 });
 
@@ -102,12 +103,11 @@ productsRoute.post('/', currentMiddleware, async (req, res) => {
       await productManager.addProduct(req.body);
       const products = await productManager.getProducts();
       req.socketServer.sockets.emit('actualizarProductos', products.docs);
-      res.status(201).json({ message: 'Producto agregado correctamente.' });
-      return;
+      return httpResponse.Ok(res, 'Producto agregado correctamente');
     }
-    return res.status(403).json({ message: "No tienes permiso para crear un producto" });
+    return httpResponse.Unauthorized(res, 'No tienes permiso para crear un producto');
   } catch (error) {
-    res.status(400).json({ error: 'Error al agregar el producto.', detailError: error.message });
+    return httpResponse.ServerError(res, 'Error al agregar el producto');
   }
 });
 
@@ -118,9 +118,9 @@ productsRoute.put('/:pid', currentMiddleware, async(req, res) => {
     await productManager.updateProduct(pid, req.body);
     const products = await productManager.getProducts();
     req.socketServer.sockets.emit('actualizarProductos', products);
-    res.json({ message: 'Producto actualizado correctamente.' });
+    return httpResponse.Ok(res, 'Producto actualizado correctamente');
   } catch (error) {
-    res.status(400).json({ error: 'Error al actualizar el producto.', detailError: error.message });
+    return httpResponse.ServerError(res, 'Error al actualizar el producto');
   }
 });
 
@@ -131,9 +131,9 @@ productsRoute.delete('/:pid', currentMiddleware, async (req, res) => {
     await productManager.deleteProduct(pid);
     const products = await productManager.getProducts();
     req.socketServer.sockets.emit('actualizarProductos', products);
-    res.json({ message: 'Producto eliminado correctamente.' });
+    return httpResponse.Ok(res, 'Producto eliminado correctamente');
   } catch (error) {
-    res.status(400).json({ error: 'Error al eliminar el producto.', detailError: error.message });
+    return httpResponse.ServerError(res, 'Error al eliminar el producto');
   }
 });
 

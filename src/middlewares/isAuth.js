@@ -1,13 +1,16 @@
+import { HttpResponse } from "../utils/http.response.js";
+
 // authMiddleware.js
+const httpResponse = new HttpResponse();
 const authMiddleware = (req, res, next) => {
     try {
       const isUserAuthenticated = !!req.socketServer.user;
       if (!isUserAuthenticated) {
-        return res.status(401).json({ error: 'Usuario no autenticado' });
+        return httpResponse.Unauthorized(res, 'Usuario no autenticado');
       }
       next();
     } catch (error) {
-      res.status(500).json({ ok: false, error: 'Ocurrió un error en la app, intente más tarde...' });
+      return httpResponse.ServerError(res, 'Ocurrió un error en la app, intente más tarde...');
     }
   };
   
