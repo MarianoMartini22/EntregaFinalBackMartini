@@ -21,7 +21,6 @@ export default class TicketService extends Services {
             if(!user) return false;
             let amountAcc = 0;
             for (const prod of cart.products) {
-                console.log(prod);
                 const idProd = prod.product._id.toString();
                 const prodDB = await prodDao.getProductById(idProd);
                 if(prod.quantity <= prodDB.stock){
