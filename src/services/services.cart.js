@@ -22,6 +22,18 @@ class CartRepository {
     }
   }
 
+  async findByUserId(id) {
+    try {
+      const cart = await cartsModel.findOne({ user: id }).populate('products.product').exec();
+      if (!cart) {
+        throw new Error('No se encontró el carrito');
+      }
+      return cart;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async findAll() {
     try {
       const carts = await cartsModel.find().lean();
@@ -34,6 +46,13 @@ class CartRepository {
   async save(cart) {
     try {
       await cart.save();
+    } catch (error) {
+      throw error;
+    }
+  }
+  async remove(id) {
+    try {
+      await cartsModel.findOneAndRemove({ _id: id });
     } catch (error) {
       throw error;
     }

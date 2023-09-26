@@ -9,6 +9,7 @@ import Handlebars from 'handlebars';
 
 import productsRoute from './routes/routes.products.js';
 import cartRoute from './routes/routes.carts.js';
+import ticketRoute from './routes/routes.ticket.js';
 import viewsRouter from './routes/routes.views.js';
 import dbConnection from './utils/db.js';
 import __dirname from './utils/utils.js';
@@ -112,6 +113,7 @@ app.get('/', (req, res) => {
 app.use(viewsRouter);
 app.use('/api/products', productsRoute);
 app.use('/api/carts', cartRoute);
+app.use('/api/ticket', ticketRoute);
 app.use('/api/mockingproducts', (req, res) => {
   const productController = new ProductController();
   let { cant } = req.query;

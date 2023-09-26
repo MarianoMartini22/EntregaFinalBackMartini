@@ -36,6 +36,10 @@ class CartsManager {
         const cart = await this.cartRepository.findById(id);
         return cart;
     }
+    async getCartByUserId(id) {
+        const cart = await this.cartRepository.findByUserId(id);
+        return cart;
+    }
 
     async addProductToCart(cartId, productId, user) {
         try {
@@ -135,6 +139,9 @@ class CartsManager {
         const cart = await this.getCartById(cartId);
         cart.products = [];
         await this.cartRepository.save(cart);
+    }
+    async removeCart(cartId) {
+        await this.cartRepository.remove(cartId);
     }
 }
 
