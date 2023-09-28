@@ -26,7 +26,7 @@ class CartRepository {
     try {
       const cart = await cartsModel.findOne({ user: id }).populate('products.product').exec();
       if (!cart) {
-        throw new Error('No se encontró el carrito');
+        // throw new Error('No se encontró el carrito');
       }
       return cart;
     } catch (error) {

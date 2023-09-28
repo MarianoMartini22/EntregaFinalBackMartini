@@ -56,13 +56,16 @@ cartRoute.get('/:cid', async (req, res) => {
 
 initializeLastCartId();
 
-cartRoute.post('/', (req, res) => {
+cartRoute.post('/', async (req, res) => {
   try {
-    const user = req.socketServer.user;
-    if (!user) res.status(500).json({ detailError: '', error: 'Error al agregar carrito, verifique su usuario' });
+    const { user } = req.socketServer.user;
+    const cart = await cartManager.getCartByUserId(user._id);
+    if (cart) return httpResponse.ServerError(res, 'Error al agregar carrito, ya posee un carrito');
+    if (!user._id) return httpResponse.ServerError(res, 'Error al agregar carrito, verifique su usuario');
     cartManager.createCart(user.user._id);
     return httpResponse.Ok(res, { message: 'Carrito agragado con éxito.' });
   } catch (error) {
+    console.log(error);
     return httpResponse.ServerError(res, 'Error al agregar carrito');
   }
 });
