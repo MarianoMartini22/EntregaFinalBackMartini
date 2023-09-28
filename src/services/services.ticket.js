@@ -11,12 +11,11 @@ export default class TicketService extends Services {
         super()
     }
 
-    async generateTicket(userId){
+    async generateTicket(userId, cart){
         try {
             const userDao = new UserController();
             const cartDao = new CartController();
             const prodDao = new ProductController(); 
-            const cart = await cartDao.getCartByUserId(userId);
             const user = await userDao.getUserById(userId);
             if(!user) return false;
             let amountAcc = 0;
@@ -31,9 +30,10 @@ export default class TicketService extends Services {
             const ticket = await ticketsModel.create({
                 code: `${Math.random()}`,
                 amount: amountAcc,
-                purchaser: user.email
+                purchaser: user.email,
+                cart: cart._id,
             });
-            cartDao.removeCart(cart._id);
+            // cartDao.removeCart(cart._id);
             return ticket;
         } catch (error) {
             console.log(error);

@@ -11,6 +11,7 @@ import { initializeLastCartId } from '../utils/helpers.js';
 import config from '../utils/config.js';
 import { HttpResponse } from '../utils/http.response.js';
 import ProductController from '../controllers/mongoDB/controllers.products.js';
+import TicketController from '../controllers/mongoDB/controllers.ticket.js';
 const httpResponse = new HttpResponse();
 
 const cartRoute = express.Router();
@@ -36,6 +37,8 @@ switch (config.DB) {
     break;
 }
 const productManager = new ProductController();
+
+const ticketManager = new TicketController();
 
 // cartRoute.use(isAuth);
 
@@ -127,6 +130,7 @@ cartRoute.post('/:cid/purchase', async (req, res) => {
   try {
     const cId = req.params.cid;
     const cart = await cartManager.getCartById(cId);
+    const { _id } = req.socketServer.user.user;
     cart.products.map(async (prod) => {
       if (prod.quantity > prod.product._doc.stock) {
         await cartManager.deleteProductFromCart(cId, prod.product._id);
@@ -134,6 +138,7 @@ cartRoute.post('/:cid/purchase', async (req, res) => {
         await productManager.updateProduct(prod.product._id, {...prod.product._doc, stock: prod.product.stock - prod.quantity});
       }
     });
+    await ticketManager.generateTicket(_id, cart);
     return httpResponse.Ok(res, { message: 'Carrito comprado con éxito.' });
   } catch (error) {
     return httpResponse.ServerError(res, 'Error al comprar el carrito', error);

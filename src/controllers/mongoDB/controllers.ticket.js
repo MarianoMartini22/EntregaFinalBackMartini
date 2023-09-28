@@ -11,9 +11,9 @@ export default class TicketController extends Controllers {
         super(ticketService);
     }
 
-    async generateTicket(_id){
+    async generateTicket(_id, cart){
         try {
-            const ticket = await ticketService.generateTicket(_id);
+            const ticket = await ticketService.generateTicket(_id, cart);
             return ticket;
         } catch (error) {
             console.log(error.message);
