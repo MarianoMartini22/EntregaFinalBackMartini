@@ -10,6 +10,7 @@ dotenv.config();
 import { initializeLastCartId } from '../utils/helpers.js';
 import config from '../utils/config.js';
 import { HttpResponse } from '../utils/http.response.js';
+import ProductController from '../controllers/mongoDB/controllers.products.js';
 const httpResponse = new HttpResponse();
 
 const cartRoute = express.Router();
@@ -34,7 +35,7 @@ switch (config.DB) {
     cartManager = new cartManagerMongo();
     break;
 }
-// const productManager = new controllers.products();
+const productManager = new ProductController();
 
 // cartRoute.use(isAuth);
 
@@ -119,6 +120,23 @@ cartRoute.put('/:cid/products/:pid', async (req, res) => {
 
   } catch (error) {
     return httpResponse.ServerError(res, 'Error al actualizar productos del carrito');
+  }
+});
+
+cartRoute.post('/:cid/purchase', async (req, res) => {
+  try {
+    const cId = req.params.cid;
+    const cart = await cartManager.getCartById(cId);
+    cart.products.map(async (prod) => {
+      if (prod.quantity > prod.product._doc.stock) {
+        await cartManager.deleteProductFromCart(cId, prod.product._id);
+      } else {
+        await productManager.updateProduct(prod.product._id, {...prod.product._doc, stock: prod.product.stock - prod.quantity});
+      }
+    });
+    return httpResponse.Ok(res, { message: 'Carrito comprado con éxito.' });
+  } catch (error) {
+    return httpResponse.ServerError(res, 'Error al comprar el carrito', error);
   }
 });
 

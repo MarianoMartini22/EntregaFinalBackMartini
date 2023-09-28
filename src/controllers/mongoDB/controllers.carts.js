@@ -68,12 +68,15 @@ class CartsManager {
 
     async deleteProductFromCart(cartId, productId) {
         const cart = await this.getCartById(cartId);
+    
         cart.products = cart.products.filter(
-            (item) => item.product._id.toString() !== productId
+            (item) => !item.product._id.equals(productId)
         );
+    
+        // cart.products = productos;
         await this.cartRepository.save(cart);
     }
-
+    
     async deleteAllProductsFromCart(cartId) {
         const cart = await this.getCartById(cartId);
         cart.products = [];

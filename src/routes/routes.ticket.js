@@ -16,7 +16,6 @@ ticketRoute.post('/', isAuth, async (req, res) => {
   try {
     const { _id } = req.socketServer.user.user;
     const ticket = await controller.generateTicket(_id);
-    console.log(ticket);
     if(!ticket) return httpResponse.NotFound(res, 'Error al generar ticket');
     return httpResponse.Ok(res, ticket);
   } catch (error) {
