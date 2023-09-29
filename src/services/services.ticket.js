@@ -33,7 +33,7 @@ export default class TicketService extends Services {
                 purchaser: user.email,
                 cart: cart._id,
             });
-            // cartDao.removeCart(cart._id);
+            cartDao.deleteAllProductsFromCart(cart._id);
             return ticket;
         } catch (error) {
             console.log(error);
