@@ -1,12 +1,13 @@
 import winston from "winston";
 
+// Define los niveles personalizados y sus colores (opcional)
 const customLevels = {
-    debug: 0,
-    http: 1,
-    info: 2,
-    warning: 3,
-    error: 4,
-    fatal: 5
+    debug: 'debug',
+    http: 'http',
+    info: 'info',
+    warning: 'warn',
+    error: 'error',
+    fatal: 'error'
 };
 
 const developmentTransport = new winston.transports.Console({ level: 'debug' });
@@ -20,13 +21,20 @@ const isDevelopment = process.env.WINSTON_ENV === 'DEV';
 
 const transports = isDevelopment ? [developmentTransport] : productionTransports;
 
+// Función personalizada para formatear el mensaje
+const customFormatMessage = winston.format.printf(({ timestamp, level, message }) => {
+    if (typeof message === 'object') {
+        return `[${timestamp}] [${level}] ${JSON.stringify(message, null, 2)}`;
+    } else {
+        return `[${timestamp}] [${level}] ${message}`;
+    }
+});
+
 const logConfig = {
     levels: customLevels,
     format: winston.format.combine(
         winston.format.timestamp(),
-        winston.format.printf(({ timestamp, level, message }) => {
-            return `[${timestamp}] [${level}] ${message}`;
-        })
+        customFormatMessage,
     ),
     transports: transports
 };

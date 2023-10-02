@@ -6,6 +6,7 @@ import isAuth from '../middlewares/isAuth.js';
 import config from '../utils/config.js';
 import currentMiddleware from '../middlewares/current.js';
 import { HttpResponse } from '../utils/http.response.js';
+import { logger } from '../utils/logger.js';
 const httpResponse = new HttpResponse();
 dotenv.config();
 
@@ -77,6 +78,7 @@ productsRoute.get('/', async (req, res) => {
     }
     return httpResponse.Ok(res, finalProducts);
   } catch (error) {
+    logger.fatal({msg: 'Ocurrió un error al obtener los productos', error});
     return httpResponse.ServerError(res, 'Ocurrió un error al obtener los productos');
   }
 });
@@ -89,9 +91,11 @@ productsRoute.get('/:pid', async (req, res) => {
     if (product) {
       return httpResponse.Ok(res, product);
     } else {
+      logger.warning('Producto no encontrado.');
       return httpResponse.NotFound(res, 'Producto no encontrado.');
     }
   } catch (error) {
+    logger.fatal({msg: 'Ocurrió un error al obtener el producto.', error});
     return httpResponse.ServerError(res, 'Ocurrió un error al obtener el producto.');
   }
 });
@@ -105,8 +109,10 @@ productsRoute.post('/', currentMiddleware, async (req, res) => {
       req.socketServer.sockets.emit('actualizarProductos', products.docs);
       return httpResponse.Ok(res, 'Producto agregado correctamente');
     }
+    logger.error('No tienes permiso para crear un producto');
     return httpResponse.Unauthorized(res, 'No tienes permiso para crear un producto');
   } catch (error) {
+    logger.fatal({msg: 'Error al agregar el producto', error});
     return httpResponse.ServerError(res, 'Error al agregar el producto');
   }
 });
@@ -120,6 +126,7 @@ productsRoute.put('/:pid', currentMiddleware, async(req, res) => {
     req.socketServer.sockets.emit('actualizarProductos', products);
     return httpResponse.Ok(res, 'Producto actualizado correctamente');
   } catch (error) {
+    logger.fatal({msg: 'Error al actualizar el producto', error});
     return httpResponse.ServerError(res, 'Error al actualizar el producto');
   }
 });
@@ -133,6 +140,7 @@ productsRoute.delete('/:pid', currentMiddleware, async (req, res) => {
     req.socketServer.sockets.emit('actualizarProductos', products);
     return httpResponse.Ok(res, 'Producto eliminado correctamente');
   } catch (error) {
+    logger.fatal({msg: 'Error al eliminar el producto', error})
     return httpResponse.ServerError(res, 'Error al eliminar el producto');
   }
 });

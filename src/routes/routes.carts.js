@@ -12,6 +12,7 @@ import config from '../utils/config.js';
 import { HttpResponse } from '../utils/http.response.js';
 import ProductController from '../controllers/mongoDB/controllers.products.js';
 import TicketController from '../controllers/mongoDB/controllers.ticket.js';
+import { logger } from '../utils/logger.js';
 const httpResponse = new HttpResponse();
 
 const cartRoute = express.Router();
@@ -50,6 +51,7 @@ cartRoute.get('/:cid', async (req, res) => {
 
     return httpResponse.Ok(res, products);
   } catch (error) {
+    logger.warning('No se encontró el carrito');
     return httpResponse.NotFound(res, 'No se encontró el carrito');
   }
 });
@@ -60,12 +62,18 @@ cartRoute.post('/', async (req, res) => {
   try {
     const { user } = req.socketServer.user;
     const cart = await cartManager.getCartByUserId(user._id);
-    if (cart) return httpResponse.ServerError(res, 'Error al agregar carrito, ya posee un carrito');
-    if (!user._id) return httpResponse.ServerError(res, 'Error al agregar carrito, verifique su usuario');
+    if (cart) {
+      logger.error('Error al agregar carrito, ya posee un carrito');
+      return httpResponse.ServerError(res, 'Error al agregar carrito, ya posee un carrito');
+    }
+    if (!user._id) {
+      logger.error('Error al agregar carrito, verifique su usuario');
+      return httpResponse.ServerError(res, 'Error al agregar carrito, verifique su usuario');
+    }
     cartManager.createCart(user.user._id);
     return httpResponse.Ok(res, { message: 'Carrito agragado con éxito.' });
   } catch (error) {
-    console.log(error);
+    logger.fatal({msg: 'Error al agregar carrito', error});
     return httpResponse.ServerError(res, 'Error al agregar carrito');
   }
 });
@@ -80,6 +88,7 @@ cartRoute.post('/:cid/product/:pid', async (req, res) => {
     return httpResponse.Ok(res, { message: 'Producto agregado al carrito correctamente.', cart });
 
   } catch (error) {
+    logger.error({msg: 'Error al agregar producto al carrito', error});
     return httpResponse.ServerError(res, 'Error al agregar producto al carrito');
   }
 });
@@ -91,6 +100,7 @@ cartRoute.delete('/:cid/products/:pid', async (req, res) => {
     const cart = await cartManager.removeProductFromCart(cId, pId);
     return httpResponse.Ok(res, { message: 'Producto borrado del carrito correctamente.', cart });
   } catch (error) {
+    logger.error({ msg: 'Error al borrar producto del carrito', error });
     return httpResponse.ServerError(res, 'Error al borrar producto del carrito');
   }
 });
@@ -100,6 +110,7 @@ cartRoute.delete('/:cid', async (req, res) => {
     const cart = await cartManager.removeAllProductsFromCart(cId);
     return httpResponse.Ok(res, { message: 'Productos borrados del carrito correctamente.', cart });
   } catch (error) {
+    logger.fatal({msg: 'Error al borrar productos del carrito', error});
     return httpResponse.ServerError(res, 'Error al borrar productos del carrito');
   }
 });
@@ -112,6 +123,7 @@ cartRoute.put('/:cid', async (req, res) => {
     return httpResponse.Ok(res, { message: 'Productos actualizados en el carrito correctamente.', cart });
 
   } catch (error) {
+    logger.fatal({msg: 'Error al actualizar productos del carrito', error});
     return httpResponse.ServerError(res, 'Error al actualizar productos del carrito');
   }
 });
@@ -125,6 +137,7 @@ cartRoute.put('/:cid/products/:pid', async (req, res) => {
     return httpResponse.Ok(res, { message: 'Productos actualizados en el carrito correctamente.', cart });
 
   } catch (error) {
+    logger.fatal({msg: 'Error al actualizar productos del carrito', error});
     return httpResponse.ServerError(res, 'Error al actualizar productos del carrito');
   }
 });
@@ -144,6 +157,7 @@ cartRoute.post('/:cid/purchase', async (req, res) => {
     await ticketManager.generateTicket(_id, cart);
     return httpResponse.Ok(res, { message: 'Carrito comprado con éxito.' });
   } catch (error) {
+    logger.fatal({msg: 'Error al comprar el carrito', error});
     return httpResponse.ServerError(res, 'Error al comprar el carrito', error);
   }
 });

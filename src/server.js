@@ -118,7 +118,7 @@ app.get('/loggerTest', (req, res) => {
   logger.info('Este es un mensaje informativo.');
   logger.warning('Este es un mensaje de advertencia.');
   logger.error('Este es un mensaje de error.');
-  logger.fatal('Este es un mensaje fatal.');
+  logger.fatal({msg: 'Este es un mensaje fatal.', error: 'este es un error especifico que sucedió cuando se ejecutó la petición bla bla'});
 
   res.send('Registros enviados al logger.');
 });

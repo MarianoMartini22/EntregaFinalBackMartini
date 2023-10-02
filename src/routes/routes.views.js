@@ -9,6 +9,7 @@ import passport from 'passport';
 import config from '../utils/config.js';
 import currentMiddleware from '../middlewares/current.js';
 import { HttpResponse } from '../utils/http.response.js';
+import { logger } from '../utils/logger.js';
 const httpResponse = new HttpResponse();
 
 let productManager = null;
@@ -60,6 +61,7 @@ viewsRoute.get('/register', async (req, res) => {
   try {
     res.render('register');
   } catch (error) {
+    logger.fatal({msg: 'Ocurrió un error al obtener la vista registro', error});
     return httpResponse.ServerError(res, 'Ocurrió un error al obtener la vista registro');
   }
 });
@@ -72,6 +74,7 @@ viewsRoute.get('/login', async (req, res) => {
   try {
     res.render('login');
   } catch (error) {
+    logger.fatal({msg: 'Ocurrió un error al obtener la vista login', error});
     return httpResponse.ServerError(res, 'Ocurrió un error al obtener la vista login');
   }
 });
@@ -200,6 +203,7 @@ viewsRoute.get('/productos', async (req, res) => {
       limit
     });
   } catch (error) {
+    logger.fatal({msg: 'Ocurrió un error al obtener los productos', error});
     return httpResponse.ServerError(res, 'Ocurrió un error al obtener los productos');
   }
 });
@@ -210,6 +214,7 @@ viewsRoute.get('/realtimeproducts', async (req, res) => {
     req.socketServer.sockets.emit('actualizarProductos', products);
     res.render('realtimeproducts', { products: products.docs.map((product) => product.toObject({ virtuals: true })) });
   } catch (error) {
+    logger.fatal({msg: 'Ocurrió un error al obtener los productos', error});
     return httpResponse.ServerError(res, 'Ocurrió un error al obtener los productos');
   }
 });
@@ -218,12 +223,16 @@ viewsRoute.get('/carts/:cid', async (req, res) => {
   try {
     const cid = req.params.cid;
     const cart = await cartManager.getCartById(cid);
-    if (!cart) return httpResponse.NotFound(res, 'No hay un carrito con esa id');
+    if (!cart) {
+      logger.error('No hay un carrito con esa id');
+      return httpResponse.NotFound(res, 'No hay un carrito con esa id');
+    }
     const products = cart.products.map((prod) => {
       return { product: prod.product.toJSON(), quantity: prod.quantity }
     });
     res.render('carrito', { products });
   } catch (error) {
+    logger.fatal({msg: 'Ocurrió un error al obtener la vista del carrito', error });
     return httpResponse.ServerError(res, 'Ocurrió un error al obtener la vista del carrito');
   }
 });
@@ -234,6 +243,7 @@ viewsRoute.get('/chat', async (req, res) => {
     const user = req.socketServer.user;
     res.render('chat', { user: user.user.email });
   } catch (error) {
+    logger.fatal({msg: 'Ocurrió un error al obtener los chats', error });
     return httpResponse.ServerError(res, 'Ocurrió un error al obtener los chats');
   }
 });
@@ -244,6 +254,7 @@ viewsRoute.get('/current', async (req, res) => {
     const user = await userManager.getUserById(canLogin.user._id);
     res.render('current', { user });
   } catch (error) {
+    logger.fatal({msg: 'Ocurrió un error al obtener el usuario actual', error});
     return httpResponse.ServerError(res, 'Ocurrió un error al obtener el usuario actual');
   }
 });
