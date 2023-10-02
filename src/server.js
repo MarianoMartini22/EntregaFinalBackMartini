@@ -21,6 +21,7 @@ import './passport/local-strategy.js';
 import passport from 'passport';
 import config from './utils/config.js';
 import ProductController from './controllers/mongoDB/controllers.products.js';
+import { logger } from './utils/logger.js';
 
 dotenv.config();
 
@@ -108,6 +109,18 @@ app.get('/', (req, res) => {
     ok: true,
     message: 'La api funciona',
   });
+});
+
+app.get('/loggerTest', (req, res) => {
+  // Ejemplos de registros de diferentes niveles
+  logger.debug('Este es un mensaje de depuración.');
+  logger.http('Este es un mensaje HTTP.');
+  logger.info('Este es un mensaje informativo.');
+  logger.warning('Este es un mensaje de advertencia.');
+  logger.error('Este es un mensaje de error.');
+  logger.fatal('Este es un mensaje fatal.');
+
+  res.send('Registros enviados al logger.');
 });
 
 app.use(viewsRouter);
