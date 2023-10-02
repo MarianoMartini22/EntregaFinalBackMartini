@@ -61,7 +61,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 socketServer.on('connect', (socket) => {
-  console.log('Usuario conectado con el servidor Socket.io');
+  logger.info('Usuario conectado con el servidor Socket.io.');
 
   socket.on('saveMessage', async (msg) => {
     const savedMessage = await chatManager.saveMessage(msg);
@@ -95,7 +95,7 @@ socketServer.on('connect', (socket) => {
 
   // Manejar la desconexión de un cliente
   socket.on('disconnect', () => {
-    console.log('Un usuario se ha desconectado.');
+    logger.info('Un usuario se ha desconectado.');
   });
 });
 
@@ -146,6 +146,6 @@ app.use('/api/mockingproducts', (req, res) => {
 });
 
 httpServer.listen(config.PORT, () => {
-  console.log(`Server corriendo en puerto ${config.PORT}\nConexión vía ${config.DB}`);
+  logger.info(`Server corriendo en puerto ${config.PORT}\nConexión vía ${config.DB}`);
   dbConnection();
 });

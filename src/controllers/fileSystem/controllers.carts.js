@@ -3,6 +3,7 @@ import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { generateNewCartId } from '../../utils/helpers.js';
 import ProductController from './controllers.products.js';
+import { logger } from '../../utils/logger.js';
 const __filename = fileURLToPath( import.meta.url );
 const __dirname = dirname( __filename );
 
@@ -99,7 +100,7 @@ class CartController {
       }
 
       fs.writeFileSync(this.path, JSON.stringify(carts, null, 2), 'utf8');
-      console.log('Archivo del carrito guardado exitosamente.');
+      logger.info('Archivo del carrito guardado exitosamente.');
     } catch (error) {
       throw new Error('Error al guardar en el archivo del carrito: ' + error.message);
     }

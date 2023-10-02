@@ -3,6 +3,7 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import config from './config.js';
+import { logger } from './logger.js';
 
 dotenv.config();
 const uri = config.MONGODB_URI;
@@ -20,7 +21,7 @@ const dbConnection = () => {
     } );
 
     db.once( 'open', () => {
-        console.log( 'Conectado a MongoDB' );
+        logger.info('Conectado a MongoDB');
     } );
 };
 
