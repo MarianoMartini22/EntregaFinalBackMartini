@@ -27,7 +27,11 @@ const UserSchema = new mongoose.Schema({
   github: {
     type: Boolean,
     default: false,
-  }
+  },
+  token: {
+    type: String,
+    required: false,
+  },
 });
 
 export const userModel = mongoose.model(collection, UserSchema);

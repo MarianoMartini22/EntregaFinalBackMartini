@@ -39,6 +39,42 @@ class UserService {
         }
     }
 
+    async updateUser({ nombre, apellido, email, password, github, token }) {
+        try {
+            const user = await userModel.findOne({ email });
+    
+            if (!user) {
+                return { ok: false, error: 'Usuario no encontrado' };
+            }
+            if (nombre) {
+                user.nombre = nombre;
+            }
+            if (apellido) {
+                user.apellido = apellido;
+            }
+            if (email) {
+                user.email = email;
+            }
+            if (password) {
+                const saltRounds = 10;
+                const hashedPassword = await bcrypt.hash(password, saltRounds);
+                user.password = hashedPassword;
+            }
+            if (github !== undefined) {
+                user.github = github;
+            }
+            if (token) {
+                user.token = token;
+            }
+            
+            const updatedUser = await user.save();
+            return { ok: true, user: updatedUser };
+        } catch (error) {
+            return { ok: false, error: 'Error al actualizar el usuario: ' + error.message };
+        }
+    }
+    
+
     async loginUser({ email, password }) {
         try {
             const existingUser = await userModel.findOne({ email }).lean();
@@ -60,6 +96,12 @@ class UserService {
     async getUserById(id) {
         if (!id) return null;
         const existingUser = await userModel.findOne({ _id: id }).lean();
+        return existingUser;
+    }
+
+    async getUserByEmail(email) {
+        if (!email) return null;
+        const existingUser = await userModel.findOne({ email }).lean();
         return existingUser;
     }
 }

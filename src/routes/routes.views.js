@@ -10,6 +10,7 @@ import config from '../utils/config.js';
 import currentMiddleware from '../middlewares/current.js';
 import { HttpResponse } from '../utils/http.response.js';
 import { logger } from '../utils/logger.js';
+import jwt from 'jsonwebtoken';
 const httpResponse = new HttpResponse();
 
 let productManager = null;
@@ -147,6 +148,41 @@ viewsRoute.get("/callback", (req, res, next) => {
       res.redirect(`/productos`);
     });
   })(req, res, next);
+});
+
+viewsRoute.get('/recoverpassword', async (req, res) => {
+  try {
+    const token = req.query.token;
+    if (!token || typeof token === 'undefined') {
+      setTimeout(() => {
+        req.socketServer.sockets.emit('tokenError', 'Token inválido');
+      }, 500);
+      res.redirect('/login');
+      return;
+    }
+    const secretKey = process.env.SECRET_KEY;
+    try {
+      await jwt.verify(token, secretKey, { algorithms: ['HS256'] });
+    } catch(e) {
+      if (e.message === 'jwt expired') {
+        setTimeout(() => {
+          req.socketServer.sockets.emit('tokenError', 'Token expirado');
+        }, 500);
+        res.redirect('/login');
+        return;
+      }
+      setTimeout(() => {
+        req.socketServer.sockets.emit('tokenError', 'Token inválido');
+      }, 500);
+      res.redirect('/login');
+      return;
+    };
+
+    res.render('recoverpassword');
+  } catch (error) {
+    logger.fatal({msg: 'Ocurrió un error al recuperar contraseña', error});
+    return httpResponse.ServerError(res, 'Ocurrió un error. Contacte al administrador');
+  }
 });
 
 viewsRoute.use(isAuth);
