@@ -36,8 +36,60 @@ Por defecto será mongoDB
 **********************
 */
 
+/**
+ * @swagger
+ * tags:
+ *   name: Productos
+ *   description: Módulo de Productos.
+ */
+
 productsRoute.use(isAuth);
 // Listar todos los productos
+/**
+ * @swagger
+ * /api/products:
+ *   get:
+ *     tags:
+ *     - Productos
+ *     summary: Obtiene la lista de productos.
+ *     description: Obtiene una lista de productos con opciones de paginación, filtrado y orden.
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         description: Número de productos por página.
+ *         schema:
+ *           type: integer
+ *         default: 10
+ *       - in: query
+ *         name: page
+ *         description: Número de página.
+ *         schema:
+ *           type: integer
+ *         default: 1
+ *       - in: query
+ *         name: sort
+ *         description: Orden de los productos (asc o desc).
+ *         schema:
+ *           type: string
+ *         default: asc
+ *       - in: query
+ *         name: filter
+ *         description: Campo de filtrado.
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: filterValue
+ *         description: Valor de filtrado.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Muestra los productos filtrados.
+ *       500:
+ *         description: Ocurrió un error al obtener los productos.
+ *       401:
+ *         description: Usuario no autenticado.
+ */
 productsRoute.get('/', async (req, res) => {
   try {
     const baseURL = 'http://localhost:8080/api/products';
@@ -78,12 +130,33 @@ productsRoute.get('/', async (req, res) => {
     }
     return httpResponse.Ok(res, finalProducts);
   } catch (error) {
-    logger.fatal({msg: 'Ocurrió un error al obtener los productos', error});
+    logger.fatal({ msg: 'Ocurrió un error al obtener los productos', error });
     return httpResponse.ServerError(res, 'Ocurrió un error al obtener los productos');
   }
 });
 
 // Obtener un producto por su ID
+/**
+ * @swagger
+ * /api/products/{pid}:
+ *   get:
+ *     tags:
+ *     - Productos
+ *     summary: Obtiene un producto por su ID.
+ *     parameters:
+ *       - in: path
+ *         name: pid
+ *         description: ID del producto.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Listado de productos.
+ *       500:
+ *         description: Ocurrió un error al obtener los productos
+ *       401:
+ *         description: No se está autorizado a realizar la petición.
+ */
 productsRoute.get('/:pid', async (req, res) => {
   try {
     const pid = req.params.pid;
@@ -95,12 +168,55 @@ productsRoute.get('/:pid', async (req, res) => {
       return httpResponse.NotFound(res, 'Producto no encontrado.');
     }
   } catch (error) {
-    logger.fatal({msg: 'Ocurrió un error al obtener el producto.', error});
+    logger.fatal({ msg: 'Ocurrió un error al obtener el producto.', error });
     return httpResponse.ServerError(res, 'Ocurrió un error al obtener el producto.');
   }
 });
 
 // Agregar un nuevo producto
+/**
+ * @swagger
+ * /api/products:
+ *   post:
+ *     tags:
+ *     - Productos
+ *     summary: Agrega un nuevo producto.
+ *     description: Agrega un nuevo producto a la base de datos.
+ *     requestBody:
+ *       description: Datos del producto a agregar.
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               price:
+ *                 type: number
+ *               thumbnails:
+ *                 type: string
+ *               code:
+ *                 type: string
+ *               stock:
+ *                 type: number
+ *               category:
+ *                 type: string
+ *               status:
+ *                 type: boolean
+ *     responses:
+ *       200:
+ *         description: Producto agregado correctamente.
+ *       400:
+ *         description: No tienes permiso para crear un producto.
+ *       500:
+ *         description: Error al agregar el producto.
+ *       401:
+ *         description: No se está autorizado a realizar la petición.
+ */
+
+
 productsRoute.post('/', currentMiddleware, async (req, res) => {
   try {
     if (req.userRole === "admin") {
@@ -112,13 +228,58 @@ productsRoute.post('/', currentMiddleware, async (req, res) => {
     logger.error('No tienes permiso para crear un producto');
     return httpResponse.Unauthorized(res, 'No tienes permiso para crear un producto');
   } catch (error) {
-    logger.fatal({msg: 'Error al agregar el producto', error});
+    logger.fatal({ msg: 'Error al agregar el producto', error });
     return httpResponse.ServerError(res, 'Error al agregar el producto');
   }
 });
 
 // Actualizar un producto por su ID
-productsRoute.put('/:pid', currentMiddleware, async(req, res) => {
+/**
+ * @swagger
+ * /api/products/{pid}:
+ *   put:
+ *     tags:
+ *     - Productos
+ *     description: Actualiza un producto existente en la base de datos.
+ *     parameters:
+ *       - in: path
+ *         name: pid
+ *         description: ID del producto a actualizar.
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       description: Datos del producto a actualizar.
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               price:
+ *                 type: number
+ *               thumbnails:
+ *                 type: string
+ *               code:
+ *                 type: string
+ *               stock:
+ *                 type: number
+ *               category:
+ *                 type: string
+ *               status:
+ *                 type: boolean
+ *     responses:
+ *       200:
+ *         description: Producto actualizado correctamente.
+ *       401:
+ *         description: Usuario no autenticado.
+ *       500:
+ *         description: Error al actualizar el producto
+ */
+
+productsRoute.put('/:pid', currentMiddleware, async (req, res) => {
   try {
     const pid = req.params.pid;
     await productManager.updateProduct(pid, req.body);
@@ -126,12 +287,34 @@ productsRoute.put('/:pid', currentMiddleware, async(req, res) => {
     req.socketServer.sockets.emit('actualizarProductos', products);
     return httpResponse.Ok(res, 'Producto actualizado correctamente');
   } catch (error) {
-    logger.fatal({msg: 'Error al actualizar el producto', error});
+    logger.fatal({ msg: 'Error al actualizar el producto', error });
     return httpResponse.ServerError(res, 'Error al actualizar el producto');
   }
 });
 
 // Eliminar un producto por su ID
+/**
+ * @swagger
+ * /api/products/{pid}:
+ *   delete:
+ *     tags:
+ *     - Productos
+ *     summary: Elimina un producto por su ID.
+ *     description: Elimina un producto de la base de datos por su ID.
+ *     parameters:
+ *       - in: path
+ *         name: pid
+ *         description: ID del producto a eliminar.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Producto eliminado correctamente.
+ *       401:
+ *         description: Usuario no autenticado.
+ *       500:
+ *         description: Error al eliminar el producto
+ */
 productsRoute.delete('/:pid', currentMiddleware, async (req, res) => {
   try {
     const pid = req.params.pid;
@@ -140,7 +323,7 @@ productsRoute.delete('/:pid', currentMiddleware, async (req, res) => {
     req.socketServer.sockets.emit('actualizarProductos', products);
     return httpResponse.Ok(res, 'Producto eliminado correctamente');
   } catch (error) {
-    logger.fatal({msg: 'Error al eliminar el producto', error})
+    logger.fatal({ msg: 'Error al eliminar el producto', error })
     return httpResponse.ServerError(res, 'Error al eliminar el producto');
   }
 });

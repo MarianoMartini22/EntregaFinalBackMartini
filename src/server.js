@@ -25,6 +25,8 @@ import { logger } from './utils/logger.js';
 import userRoute from './routes/routes.user.js';
 import jwt from 'jsonwebtoken';
 import comparePasswords from './utils/passwords.js';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './utils/swagger.js';
 
 dotenv.config();
 
@@ -172,6 +174,7 @@ app.get('/loggerTest', (req, res) => {
   res.send('Registros enviados al logger.');
 });
 
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/api/user', userRoute);
 app.use('/api/products', productsRoute);
 app.use('/api/carts', cartRoute);
