@@ -202,3 +202,5 @@ httpServer.listen(config.PORT, () => {
   logger.info(`Server corriendo en puerto ${config.PORT}\nConexión vía ${config.DB}`);
   dbConnection();
 });
+
+export default app;

@@ -1,5 +1,6 @@
 import ProductsManager from './controllers.products.js';
 import CartRepository from '../../services/services.cart.js';
+import { cartsModel } from '../../dao/models/carrito.model.js';
 
 class CartProductDTO {
     constructor(product, quantity) {
@@ -49,7 +50,7 @@ class CartsManager {
                 throw new Error('Sólo el usuario del carrito puede agregar productos');
             }
             const existingProductIndex = cart.products.findIndex(
-                (item) => item.product._id.toString() === product._id.toString()
+                (item) => item._id.toString() === product._id.toString()
             );
 
             if (existingProductIndex !== -1) {
@@ -57,20 +58,33 @@ class CartsManager {
                 cart.products[existingProductIndex].quantity += 1;
             } else {
                 // Si el producto no está en el carrito, se agrega con una cantidad de 1
-                cart.products.push(new CartProductDTO(product, 1));
-            }
+                cart.products.push(product);
 
-            await this.cartRepository.save(cart);
+            }
+            const cartNew = await this.cartRepository.save(cart);
+            const updatedCart = await this.populateCartProducts(cartNew);
+            return updatedCart;
         } catch (e) {
             throw new Error(e.message);
         }
+    }
+
+    async populateCartProducts(cart) {
+        const updatedProducts = await Promise.all(
+            cart.products.map(async (cartProduct) => {
+                const productDetails = await this.productsManager.getProductById(cartProduct._id);
+                return { product: productDetails, quantity: cartProduct.quantity };
+            })
+        );
+    
+        return updatedProducts;
     }
 
     async deleteProductFromCart(cartId, productId) {
         const cart = await this.getCartById(cartId);
     
         cart.products = cart.products.filter(
-            (item) => !item.product._id.equals(productId)
+            (item) => !item._id.equals(productId)
         );
     
         // cart.products = productos;

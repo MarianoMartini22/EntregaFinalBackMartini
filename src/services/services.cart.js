@@ -45,7 +45,8 @@ class CartRepository {
 
   async save(cart) {
     try {
-      await cart.save();
+      const carrito = await cart.save();
+      return carrito;
     } catch (error) {
       throw error;
     }
