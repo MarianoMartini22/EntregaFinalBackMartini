@@ -78,17 +78,15 @@ userRoute.delete('/', async (req, res) => {
     try {
         const users = await userManager.getUsers(true);
 
-        const threeMinutesAgo = new Date();
-        threeMinutesAgo.setMinutes(threeMinutesAgo.getMinutes() - 3);
+        const twoDaysAgo = new Date();
+        twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
 
         const inactiveUsers = await Promise.all(users.map(async (user) => {
             try {
-                // Decodificar el token para obtener la información del usuario
                 const decoded = await promisify(jwt.verify)(user.token, process.env.SECRET_KEY);
 
-                // Verificar si el tiempo de inicio de sesión es anterior a tres minutos atrás
-                const lastLogin = new Date(decoded.iat * 1000); // `iat` es el tiempo de inicio del token
-                if (lastLogin < threeMinutesAgo) {
+                const lastLogin = new Date(decoded.iat * 1000);
+                if (lastLogin < twoDaysAgo) {
                     return {
                         nombre: user.nombre,
                         apellido: user.apellido,
