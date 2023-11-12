@@ -96,6 +96,17 @@ viewsRoute.post('/login', (req, res, next) => {
       if (err) {
         return next(err);
       }
+      if (user.ok) {
+        const expirationTime = Math.floor(Date.now() / 1000) + 3600;
+        // const expirationTime = Math.floor(Date.now() / 1000) + 60; // para 1 minuto
+        const token = jwt.sign({ email: user.user.email, exp: expirationTime }, process.env.SECRET_KEY, { algorithm: 'HS256' });
+        const userUpdate = user.user;
+        userUpdate.token = token;
+        delete userUpdate._id;
+        delete userUpdate.__v;
+        userUpdate.password = null;
+        userManager.updateUser(userUpdate);
+      }
       return res.redirect('/productos');
     });
   })(req, res, next);
@@ -115,6 +126,17 @@ viewsRoute.post('/register', (req, res, next) => {
     req.login(user, (err) => {
       if (err) {
         return next(err);
+      }
+      if (user.ok) {
+        const expirationTime = Math.floor(Date.now() / 1000) + 3600;
+        // const expirationTime = Math.floor(Date.now() / 1000) + 60; // para 1 minuto
+        const token = jwt.sign({ email: user.user.email, exp: expirationTime }, process.env.SECRET_KEY, { algorithm: 'HS256' });
+        const userUpdate = user.user;
+        userUpdate._doc.token = token;
+        delete userUpdate._doc._id;
+        delete userUpdate._doc.__v;
+        userUpdate._doc.password = null;
+        userManager.updateUser(userUpdate._doc);
       }
       return res.redirect('/login');
     });

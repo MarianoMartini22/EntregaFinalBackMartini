@@ -22,7 +22,7 @@ import passport from 'passport';
 import config from './utils/config.js';
 import ProductController from './controllers/mongoDB/controllers.products.js';
 import { logger } from './utils/logger.js';
-import userRoute from './routes/routes.user.js';
+import usersRoute from './routes/routes.users.js';
 import jwt from 'jsonwebtoken';
 import comparePasswords from './utils/passwords.js';
 import swaggerUi from 'swagger-ui-express';
@@ -95,7 +95,7 @@ socketServer.on('connect', (socket) => {
     const postData = {
         email,
     };
-    await fetch('http://localhost:8080/api/user/recoverPassword', {
+    await fetch('http://localhost:8080/api/users/recoverPassword', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -175,7 +175,7 @@ app.get('/loggerTest', (req, res) => {
 });
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use('/api/user', userRoute);
+app.use('/api/users', usersRoute);
 app.use('/api/products', productsRoute);
 app.use('/api/carts', cartRoute);
 app.use('/api/ticket', ticketRoute);

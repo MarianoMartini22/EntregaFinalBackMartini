@@ -104,6 +104,17 @@ class UserService {
         const existingUser = await userModel.findOne({ email }).lean();
         return existingUser;
     }
+
+    async getUsers() {
+        const existingUser = await userModel.find().lean();
+        return existingUser;
+    }
+
+    async deleteUsers(users) {
+        const userEmails = users.map(user => user.email);
+        const result = await userModel.deleteMany({ email: { $in: userEmails } });
+        return result;
+    }
 }
 
 export default UserService;

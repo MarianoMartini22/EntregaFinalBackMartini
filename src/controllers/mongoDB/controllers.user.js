@@ -48,6 +48,25 @@ class UserController {
         if (!result) return null;
         return new UserDTO(result.nombre, result.apellido, result.email, result.rol, result.github, result.token, result.password);
     }
+    async getUsers(full = false) {
+        const result = await this.userService.getUsers();
+        if (!result) return null;
+        let users = [];
+        if (!full) {
+            users = result.map((result) => {
+                return new UserDTO(result.nombre, result.apellido, result.email, result.rol);
+            });
+            return users;
+        }
+        users = result.map((result) => {
+            return new UserDTO(result.nombre, result.apellido, result.email, result.rol, result.github, result.token, result.password);
+        });
+        return users;
+    }
+    async deleteUsers(users) {
+        const deletedUsers = await this.userService.deleteUsers(users);
+        return deletedUsers;
+    }
 }
 
 export default UserController;
