@@ -40,6 +40,14 @@ const socketServer = new Server(httpServer);
 Handlebars.registerHelper('displayId', function (product) {
   return product.id ? product.id : product._id;
 });
+Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
+  switch (operator) {
+    case '===':
+      return (v1 === v2) ? options.fn(this) : options.inverse(this);
+    default:
+      return options.inverse(this);
+  }
+});
 app.engine('handlebars', engine({
   allowProtoProperties: true,
   helpers: {
@@ -80,6 +88,27 @@ socketServer.on('connect', (socket) => {
 
   socket.on('loginUsuario', async (user) => {
     socketServer.emit('loginUsuario', loginUser);
+  });
+
+  socket.on('updateRole', async ({email, selectedRole}) => {
+    const user = await userManager.getUserByEmail(email);
+    if (user) {
+      user.rol = selectedRole;
+      await userManager.updateUser(user);
+      socketServer.emit('updateRole');
+      return;
+    }
+    socketServer.emit('updateRoleError');
+  });
+
+  socket.on('deleteUser', async (email) => {
+    const user = await userManager.getUserByEmail(email);
+    if (user) {
+      await userManager.deleteUsers([user])
+      socketServer.emit('deleteUser');
+      return;
+    }
+    socketServer.emit('deleteUserError');
   });
 
   socket.on('loginGithub', async (user) => {

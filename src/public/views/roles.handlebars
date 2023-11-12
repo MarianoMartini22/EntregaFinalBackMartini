@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Actualizar Roles Cliente</title>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>Actualizar roles</h1>
+        <ul class="list-group">
+            {{#each users}}
+            <li class="list-group-item mt-5">
+                <span>Nombre: {{nombre}} {{apellido}}</span>
+                <br>
+                <span>Email: {{email}}</span>
+                <br>
+                <span>Rol:
+                    <select class="custom-select role-dropdown" data-email="{{email}}">
+                        <option value="usuario" {{#ifCond rol "===" "usuario"}}selected{{/ifCond}}>Usuario</option>
+                        <option value="admin" {{#ifCond rol "===" "admin"}}selected{{/ifCond}}>Admin</option>
+                        <!-- Agrega más opciones según tus roles -->
+                    </select>
+                </span>
+                <div class="mt-5">
+                    <button onclick="actualizarUsuario('{{email}}')" class="btn btn-success" data-email="{{email}}">Actualizar</button>
+                    <button onclick="borrarUsuario('{{email}}')" class="btn btn-danger" data-email="{{email}}">Eliminar</button>
+                </div>
+            </li>
+            {{/each}}
+        </ul>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/roles.js"></script>
+</body>
+</html>

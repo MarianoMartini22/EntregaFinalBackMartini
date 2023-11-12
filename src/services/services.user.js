@@ -39,7 +39,7 @@ class UserService {
         }
     }
 
-    async updateUser({ nombre, apellido, email, password, github, token }) {
+    async updateUser({ nombre, apellido, email, rol, password, github, token }) {
         try {
             const user = await userModel.findOne({ email });
     
@@ -54,6 +54,9 @@ class UserService {
             }
             if (email) {
                 user.email = email;
+            }
+            if (rol) {
+                user.rol = rol;
             }
             if (password) {
                 const saltRounds = 10;

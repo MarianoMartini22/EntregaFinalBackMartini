@@ -306,6 +306,20 @@ viewsRoute.get('/chat', async (req, res) => {
   }
 });
 
+viewsRoute.get('/roles', async (req, res) => {
+  try {
+    const { user } = req.socketServer.user;
+    if (!user || user.rol !== 'admin') {
+      return httpResponse.Unauthorized(res, 'No tienes acceso a esta sección, consulte con algún administrador');  
+    }
+    const users = await userManager.getUsers(true);
+    res.render('roles', { users });
+  } catch (error) {
+    logger.fatal({msg: 'Ocurrió un error al obtener los chats', error });
+    return httpResponse.ServerError(res, 'Ocurrió un error al obtener los chats');
+  }
+});
+
 viewsRoute.get('/current', async (req, res) => {
   try {
     const canLogin = req.socketServer.user;

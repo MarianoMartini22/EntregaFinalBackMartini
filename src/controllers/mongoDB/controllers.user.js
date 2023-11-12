@@ -22,8 +22,8 @@ class UserController {
         return result;
     }
 
-    async updateUser({ nombre, apellido, email, password, github, token }) {
-        const result = await this.userService.updateUser({ nombre, apellido, email, password, github, token });
+    async updateUser({ nombre, apellido, email, rol, password, github, token }) {
+        const result = await this.userService.updateUser({ nombre, apellido, email, rol, password, github, token });
         return result;
     }
 
