@@ -124,7 +124,7 @@ socketServer.on('connect', (socket) => {
     const postData = {
         email,
     };
-    await fetch('http://localhost:8080/api/users/recoverPassword', {
+    await fetch(process.env.URL_HOME + '/api/users/recoverPassword', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -212,7 +212,7 @@ viewsRoute.use(isAuth);
 
 viewsRoute.get('/productos', async (req, res) => {
   try {
-    const baseURL = 'http://localhost:8080/api/products';
+    const baseURL = process.env.URL_HOME + '/api/products';
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const sort = req.query.sort ? req.query.sort : 'asc';

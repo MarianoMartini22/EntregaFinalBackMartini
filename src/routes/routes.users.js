@@ -44,9 +44,9 @@ userRoute.post('/recoverPassword', async (req, res) => {
         subject: 'Recuperación de contraseña',
         html: `
             <p>Para restablecer tu contraseña, haz clic en el siguiente botón:</p>
-            <a href="http://localhost:8080/recoverpassword?token=${token}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #fff; text-decoration: none; border-radius: 5px;">Restablecer Contraseña</a>
+            <a href="${process.env.URL_HOME}/recoverpassword?token=${token}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #fff; text-decoration: none; border-radius: 5px;">Restablecer Contraseña</a>
             <p>O copia y pega la siguiente URL en tu navegador:</p>
-            <p>http://localhost:8080/recoverpassword?token=${token}</p>
+            <p>${process.env.URL_HOME }/recoverpassword?token=${token}</p>
         `,
     };
     
