@@ -120,11 +120,13 @@ class CartsManager {
 
     async removeProductFromCart(cartId, productId) {
         const cart = await this.getCartById(cartId);
+        // console.log({cart: cart.products, productId});
         cart.products = cart.products.filter(
-            (productF) =>
-                productF.product && productF.product._id.toString() !== productId
+            (productF) => {
+                return productF._id.toString() !== productId;
+            }
         );
-        await this.cartRepository.save(cart);
+        return await this.cartRepository.save(cart);
     }
 
     async updateCartByQuantity(cartId, productId, quantity) {

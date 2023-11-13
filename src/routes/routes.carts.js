@@ -3,6 +3,7 @@ import CartManagerFS from '../controllers/fileSystem/controllers.carts.js';
 import cartManagerMongo from '../controllers/mongoDB/controllers.carts.js';
 import dotenv from 'dotenv';
 import isAuth from '../middlewares/isAuth.js';
+import nodemailer from 'nodemailer';
 
 dotenv.config();
 
@@ -13,7 +14,17 @@ import { HttpResponse } from '../utils/http.response.js';
 import ProductController from '../controllers/mongoDB/controllers.products.js';
 import TicketController from '../controllers/mongoDB/controllers.ticket.js';
 import { logger } from '../utils/logger.js';
+import UserController from '../controllers/mongoDB/controllers.user.js';
 const httpResponse = new HttpResponse();
+const userManager = new UserController();
+
+let transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.MAIL_USERNAME,
+    pass: process.env.MAIL_PASSWORD,
+  }
+});
 
 const cartRoute = express.Router();
 /*
@@ -106,20 +117,22 @@ initializeLastCartId();
 
 cartRoute.post('/', async (req, res) => {
   try {
-    const { user } = req.socketServer.user;
-    const cart = await cartManager.getCartByUserId(user._id);
+    const user = req.socketServer.user.user;
+    const userDB = await userManager.getUserByEmailFull(user.email);
+    const cart = await cartManager.getCartByUserId(userDB._id);
     if (cart) {
       logger.error('Error al agregar carrito, ya posee un carrito');
       return httpResponse.ServerError(res, 'Error al agregar carrito, ya posee un carrito');
     }
-    if (!user._id) {
+    if (!userDB._id) {
       logger.error('Error al agregar carrito, verifique su usuario');
       return httpResponse.ServerError(res, 'Error al agregar carrito, verifique su usuario');
     }
-    cartManager.createCart(user.user._id);
+    cartManager.createCart(userDB._id);
     return httpResponse.Ok(res, { message: 'Carrito agragado con éxito.' });
   } catch (error) {
-    logger.fatal({msg: 'Error al agregar carrito', error});
+    console.log(error);
+    logger.fatal({ msg: 'Error al agregar carrito', error });
     return httpResponse.ServerError(res, 'Error al agregar carrito');
   }
 });
@@ -161,7 +174,7 @@ cartRoute.post('/:cid/product/:pid', async (req, res) => {
     return httpResponse.Ok(res, { message: 'Producto agregado al carrito correctamente.', cart });
 
   } catch (error) {
-    logger.error({msg: 'Error al agregar producto al carrito', error});
+    logger.error({ msg: 'Error al agregar producto al carrito', error });
     return httpResponse.ServerError(res, 'Error al agregar producto al carrito');
   }
 });
@@ -197,6 +210,30 @@ cartRoute.delete('/:cid/products/:pid', async (req, res) => {
     const cId = req.params.cid;
     const pId = req.params.pid;
     const cart = await cartManager.removeProductFromCart(cId, pId);
+    if (cart) {
+      const user = await userManager.getUserById(cart.user._id);
+      if (user.rol === 'premium') {
+        const product = await productManager.getProductById(pId);
+        const mailOptions = {
+          from: process.env.MAIL_USERNAME,
+          to: user.email,
+          subject: 'Producto eliminado de su carrito',
+          html: `
+            <p>El producto con el código: ${product.code} fue eliminado de su carrito</p>
+          `,
+        };
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            console.error('Error al enviar el correo electrónico:', error);
+            return res.status(500).json({ ok: false, message: 'Error al enviar el correo electrónico' });
+          } else {
+            console.log('Correo electrónico enviado:', info.response);
+            req.socketServer.token = token;
+            return res.status(200).json({ ok: true });
+          }
+        });
+      }
+    }
     return httpResponse.Ok(res, { message: 'Producto borrado del carrito correctamente.', cart });
   } catch (error) {
     logger.error({ msg: 'Error al borrar producto del carrito', error });
@@ -232,7 +269,7 @@ cartRoute.delete('/:cid', async (req, res) => {
     const cart = await cartManager.removeAllProductsFromCart(cId);
     return httpResponse.Ok(res, { message: 'Productos borrados del carrito correctamente.', cart });
   } catch (error) {
-    logger.fatal({msg: 'Error al borrar productos del carrito', error});
+    logger.fatal({ msg: 'Error al borrar productos del carrito', error });
     return httpResponse.ServerError(res, 'Error al borrar productos del carrito');
   }
 });
@@ -285,7 +322,7 @@ cartRoute.put('/:cid', async (req, res) => {
     return httpResponse.Ok(res, { message: 'Productos actualizados en el carrito correctamente.', cart });
 
   } catch (error) {
-    logger.fatal({msg: 'Error al actualizar productos del carrito', error});
+    logger.fatal({ msg: 'Error al actualizar productos del carrito', error });
     return httpResponse.ServerError(res, 'Error al actualizar productos del carrito');
   }
 });
@@ -336,7 +373,7 @@ cartRoute.put('/:cid/products/:pid', async (req, res) => {
     return httpResponse.Ok(res, { message: 'Productos actualizados en el carrito correctamente.', cart });
 
   } catch (error) {
-    logger.fatal({msg: 'Error al actualizar productos del carrito', error});
+    logger.fatal({ msg: 'Error al actualizar productos del carrito', error });
     return httpResponse.ServerError(res, 'Error al actualizar productos del carrito');
   }
 });
@@ -372,13 +409,13 @@ cartRoute.post('/:cid/purchase', async (req, res) => {
       if (prod.quantity > prod.product._doc.stock) {
         await cartManager.deleteProductFromCart(cId, prod.product._id);
       } else {
-        await productManager.updateProduct(prod.product._id, {...prod.product._doc, stock: prod.product.stock - prod.quantity});
+        await productManager.updateProduct(prod.product._id, { ...prod.product._doc, stock: prod.product.stock - prod.quantity });
       }
     });
     await ticketManager.generateTicket(_id, cart);
     return httpResponse.Ok(res, { message: 'Carrito comprado con éxito.' });
   } catch (error) {
-    logger.fatal({msg: 'Error al comprar el carrito', error});
+    logger.fatal({ msg: 'Error al comprar el carrito', error });
     return httpResponse.ServerError(res, 'Error al comprar el carrito', error);
   }
 });

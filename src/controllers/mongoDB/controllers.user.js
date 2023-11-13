@@ -1,7 +1,7 @@
 import UserService from '../../services/services.user.js';
 
 class UserDTO {
-    constructor(nombre, apellido, email, rol, github, token, password) {
+    constructor(nombre, apellido, email, rol, github, token, password, _id) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.email = email;
@@ -9,6 +9,7 @@ class UserDTO {
         this.github = github;
         this.token = token;
         this.password = password;
+        this._id = _id;
     }
 }
 
@@ -47,6 +48,11 @@ class UserController {
         const result = await this.userService.getUserByEmail(email);
         if (!result) return null;
         return new UserDTO(result.nombre, result.apellido, result.email, result.rol, result.github, result.token, result.password);
+    }
+    async getUserByEmailFull(email) {
+        const result = await this.userService.getUserByEmail(email);
+        if (!result) return null;
+        return new UserDTO(result.nombre, result.apellido, result.email, result.rol, result.github, result.token, result.password, result._id);
     }
     async getUsers(full = false) {
         const result = await this.userService.getUsers();
