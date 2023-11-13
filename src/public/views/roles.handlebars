@@ -17,6 +17,7 @@
                     <select class="custom-select role-dropdown" data-email="{{email}}">
                         <option value="usuario" {{#ifCond rol "===" "usuario"}}selected{{/ifCond}}>Usuario</option>
                         <option value="admin" {{#ifCond rol "===" "admin"}}selected{{/ifCond}}>Admin</option>
+                        <option value="premium" {{#ifCond rol "===" "premium"}}selected{{/ifCond}}>Premium</option>
                         <!-- Agrega más opciones según tus roles -->
                     </select>
                 </span>
